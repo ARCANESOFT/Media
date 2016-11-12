@@ -1,0 +1,46 @@
+{
+    "name":        "arcanesoft/media",
+    "description": "Media package for ARCANESOFT/Foundation.",
+    "homepage":    "https://github.com/ARCANESOFT/Media",
+    "keywords":    [
+        "arcanesoft", "arcanedev", "media", "images", "files", "manager"
+    ],
+    "authors":  [
+        {
+            "name":     "ARCANEDEV",
+            "email":    "arcanedev.maroc@gmail.com",
+            "homepage": "https://github.com/arcanedev-maroc",
+            "role":     "Developer"
+        }
+    ],
+    "type":    "library",
+    "license": "MIT",
+    "require": {
+        "php":                ">=5.6.4",
+        "arcanesoft/auth":    "~1.0",
+        "arcanesoft/core":    "~1.0",
+        "intervention/image": "~2.0"
+    },
+    "require-dev": {
+        "phpunit/phpcov":     "~3.0",
+        "phpunit/phpunit":    "~5.0"
+    },
+    "autoload": {
+        "psr-4": {
+            "Arcanesoft\\Media\\": "src/"
+        }
+    },
+    "autoload-dev": {
+        "psr-4": {
+            "Arcanesoft\\Media\\Tests\\": "tests/"
+        }
+    },
+    "scripts": {
+        "testbench": "composer require --dev \"orchestra/testbench=~3.3.0\""
+    },
+    "extra": {
+        "branch-alias": {
+            "dev-master": "1.0-dev"
+        }
+    }
+}
