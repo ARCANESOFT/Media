@@ -54,6 +54,15 @@ class MediaServiceProvider extends PackageServiceProvider
         if ($this->app->runningInConsole()) {
             $this->app->register(Providers\CommandServiceProvider::class);
         }
+
+        $this->syncFilesystemConfig();
+    }
+
+    private function syncFilesystemConfig()
+    {
+        foreach ($this->config()->get('arcanesoft.media.filesystem.disks', []) as $disk => $config) {
+            $this->config()->set("filesystems.disks.$disk", $config);
+        }
     }
 
     /**
