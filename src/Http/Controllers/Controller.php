@@ -42,4 +42,3 @@ abstract class Controller extends BaseController
         $this->addBreadcrumbRoute('Media', 'media::foundation.index');
     }
 }
-

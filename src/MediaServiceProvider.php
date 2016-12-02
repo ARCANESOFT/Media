@@ -70,6 +70,7 @@ class MediaServiceProvider extends PackageServiceProvider
      */
     public function boot()
     {
+        parent::boot();
         $this->app->register(Providers\RouteServiceProvider::class);
 
         // Publishes

@@ -26,7 +26,8 @@
 
 <script>
     const config = require('./../Config').default;
-    import eventHub from './../shared/EventHub'
+
+    import eventHub from './../../../../shared/EventHub'
 
     export default {
         props: ['media'],
@@ -48,6 +49,8 @@
                         this.$parent.refreshDirectory();
 
                         $('div#deleteFolderModal').modal('hide');
+
+                        this.$parent.mediaModalClosed();
 
                         this.newDirectory = '';
                     });

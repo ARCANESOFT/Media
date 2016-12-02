@@ -54,7 +54,24 @@ class MediasController extends Controller
 
     public function uploadMedia(Request $request)
     {
-        dd($request->all());
+        $validator = \Validator::make($request->all(), [
+            'location' => 'required',
+            'medias'   => 'required|array',
+            'medias.*' => 'required|file'
+        ]);
+
+        if ($validator->fails()) {
+            return response()->json(['status' => 'error', 'errors' => $validator->messages()]);
+        }
+
+        $location = $request->get('location');
+
+        foreach ($request->file('medias') as $media) {
+            /** @var \Illuminate\Http\UploadedFile  $media */
+            $media->store($location, $this->getDefaultDiskDriver());
+        }
+
+        return response()->json(['status' => 'success']);
     }
 
     public function createDirectory(Request $request)
@@ -132,13 +149,17 @@ class MediasController extends Controller
     {
         // TODO: Add validation
         $data = $request->all();
-        $path = trim($data['media']['path'], '/');
 
-        $this->disk()->deleteDirectory($path);
+        if ($data['media']['type'] == 'file') {
+            $deleted = $this->disk()->delete($data['media']['path']);
+        }
+        else {
+            $path = trim($data['media']['path'], '/');
 
-        return response()->json([
-            'status' => 'success',
-        ]);
+            $deleted = $this->disk()->deleteDirectory($path);
+        }
+
+        return response()->json(['status' => $deleted ? 'success' : 'error']);
     }
 
     /* ------------------------------------------------------------------------------------------------
@@ -146,13 +167,23 @@ class MediasController extends Controller
      | ------------------------------------------------------------------------------------------------
      */
     /**
+     * Get the default disk driver.
+     *
+     * @return \Illuminate\Filesystem\FilesystemAdapter
+     */
+    private function getDefaultDiskDriver()
+    {
+        return config('arcanesoft.media.filesystem.default');
+    }
+
+    /**
      * Get the disk adapter.
      *
      * @return \Illuminate\Filesystem\FilesystemAdapter
      */
-    protected function disk()
+    private function disk()
     {
-        return Storage::disk(config('arcanesoft.media.filesystem.default'));
+        return Storage::disk($this->getDefaultDiskDriver());
     }
 
     /**
@@ -192,12 +223,5 @@ class MediasController extends Controller
                 'size'         => $disk->size($path),
             ];
         }, $disk->files($location));
-    }
-
-    private function isLocalDisk()
-    {
-        $driver = config('arcanesoft.media.filesystem.default');
-
-        return config("arcanesoft.media.filesystem.disks.{$driver}.driver", 'local');
     }
 }

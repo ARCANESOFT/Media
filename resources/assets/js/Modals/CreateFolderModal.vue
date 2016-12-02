@@ -26,7 +26,8 @@
 
 <script>
     const config = require('./../Config').default;
-    import eventHub from './../shared/EventHub'
+
+    import eventHub from './../../../../shared/EventHub'
 
     export default {
         props: ['location'],
@@ -51,6 +52,8 @@
                         this.$parent.refreshDirectory();
 
                         $('div#newFolderModal').modal('hide');
+
+                        this.$parent.mediaModalClosed();
 
                         this.newDirectory = '';
                     });

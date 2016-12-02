@@ -18,7 +18,7 @@ class RouteServiceProvider extends ServiceProvider
      */
     protected function getRouteNamespace()
     {
-        return 'Arcanesoft\\Auth\\Http\\Routes';
+        return 'Arcanesoft\\Media\\Http\\Routes';
     }
 
     /**

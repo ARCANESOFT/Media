@@ -3,6 +3,14 @@
 @endsection
 
 @section('content')
+    <div class="box">
+        <div class="box-header with-border">
+            <h2 class="box-title">Media Manager</h2>
+        </div>
+        <div class="box-body no-padding">
+            <media-manager></media-manager>
+        </div>
+    </div>
 @endsection
 
 @section('modals')
