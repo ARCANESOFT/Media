@@ -58,13 +58,6 @@ class MediaServiceProvider extends PackageServiceProvider
         $this->syncFilesystemConfig();
     }
 
-    private function syncFilesystemConfig()
-    {
-        foreach ($this->config()->get('arcanesoft.media.filesystem.disks', []) as $disk => $config) {
-            $this->config()->set("filesystems.disks.$disk", $config);
-        }
-    }
-
     /**
      * Boot the service provider.
      */
@@ -78,6 +71,7 @@ class MediaServiceProvider extends PackageServiceProvider
         $this->publishViews();
         $this->publishTranslations();
         $this->publishSidebarItems();
+        $this->publishAssets();
     }
 
     /**
@@ -90,5 +84,29 @@ class MediaServiceProvider extends PackageServiceProvider
         return [
             //
         ];
+    }
+
+    /* ------------------------------------------------------------------------------------------------
+     |  Other Functions
+     | ------------------------------------------------------------------------------------------------
+     */
+    /**
+     * Sync the filesystem config.
+     */
+    private function syncFilesystemConfig()
+    {
+        foreach ($this->config()->get('arcanesoft.media.filesystem.disks', []) as $disk => $config) {
+            $this->config()->set("filesystems.disks.$disk", $config);
+        }
+    }
+
+    /**
+     * Publish the assets.
+     */
+    private function publishAssets()
+    {
+        $this->publishes([
+            $this->getBasePath() . '/resources/assets/js' => resource_path("assets/back/js/components/{$this->vendor}/{$this->package}"),
+        ], 'assets-js');
     }
 }
