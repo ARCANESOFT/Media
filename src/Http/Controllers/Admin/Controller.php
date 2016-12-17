@@ -1,4 +1,4 @@
-<?php namespace Arcanesoft\Media\Http\Controllers;
+<?php namespace Arcanesoft\Media\Http\Controllers\Admin;
 
 use Arcanesoft\Core\Bases\FoundationController as BaseController;
 use Arcanesoft\Core\Traits\Notifyable;
@@ -6,7 +6,7 @@ use Arcanesoft\Core\Traits\Notifyable;
 /**
  * Class     Controller
  *
- * @package  Arcanesoft\Auth\Http\Controllers\Foundation
+ * @package  Arcanesoft\Media\Http\Controllers\Admin
  * @author   ARCANEDEV <arcanedev.maroc@gmail.com>
  */
 abstract class Controller extends BaseController
@@ -39,6 +39,6 @@ abstract class Controller extends BaseController
     {
         parent::__construct();
 
-        $this->addBreadcrumbRoute('Media', 'media::foundation.index');
+        $this->addBreadcrumbRoute('Media', 'admin::media.index');
     }
 }

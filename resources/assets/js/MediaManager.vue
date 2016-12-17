@@ -54,26 +54,18 @@
                 >
                     <div class="media-icon">
                         <i class="fa fa-fw fa-folder-o" v-if="isMediaDirectory(media)"></i>
-                        <div class="media-image"
-                             v-if="isMediaImage(media)"
+
+                        <div v-if="isMediaImage(media)"
                              :style="'background-image: url(' + media.url + ');'"
+                             class="media-image"
                         ></div>
+
+                        <i v-if="isMediaNotImage(media)" :class="getMediaFileIcon(media)" class="fa fa-fw"></i>
                     </div>
                     <div class="media-details">
                         <h4 class="media-name">{{ media.name }}</h4>
                     </div>
                 </a>
-                <!--<a class="media-item media-file"-->
-                   <!--v-for="file in files"-->
-                   <!--:class="{selected: file.name == selected.name}"-->
-                   <!--@click="selectMedia(file.name, 'file')">-->
-                    <!--<div class="media-icon">-->
-                        <!--<div class="media-image" :style="'background-image: url(' + file.url + ');'"></div>-->
-                    <!--</div>-->
-                    <!--<div class="media-details">-->
-                        <!--<h4 class="media-name">{{ file.name }}</h4>-->
-                    <!--</div>-->
-                <!--</a>-->
             </div>
             <div class="media-status-bar">
 
@@ -81,7 +73,7 @@
             <transition name="fade">
                 <div class="media-loader" v-show="loading">
                     <i class="fa fa-circle-o-notch fa-spin fa-3x fa-fw"></i>
-                    <p>LOADING&hellip;</p>
+                    <p>{{ loadingText }}</p>
                 </div>
             </transition>
         </div>
@@ -99,6 +91,12 @@
     import eventHub from './../../../shared/EventHub'
 
     export default {
+        props: {
+            loadingText: {
+                type: String,
+                default: "LOADING..."
+            },
+        },
         data () {
             return {
                 breadcrumbs: [],
@@ -185,8 +183,8 @@
                 this.breadcrumbs = [];
                 this.resetSelected();
 
-                this.$http.get(config.endpoint + '/all').then((response) => {
-                    this.medias = response.body.data;
+                axios.get(config.endpoint + '/all').then((response) => {
+                    this.medias = response.data.data;
                     this.loading = false;
                 });
             },
@@ -209,6 +207,15 @@
 
                 return _.indexOf(config.supportedImages, media.mimetype) >= 0;
             },
+            isMediaNotImage(media) {
+                return ! (this.isMediaDirectory(media) || this.isMediaImage(media));
+            },
+
+            getMediaFileIcon(media) {
+                return _.has(config.icons, media.mimetype)
+                    ? config.icons[media.mimetype]
+                    : config['default-icon'];
+            },
 
             openMedia(media) {
                 if (this.isMediaDirectory(media)) {
@@ -225,8 +232,8 @@
                 this.resetSelected();
                 this.loading = true;
 
-                this.$http.get(config.endpoint + '/all?location=' + location).then((response) => {
-                    this.medias  = response.body.data;
+                axios.get(config.endpoint + '/all?location=' + location).then((response) => {
+                    this.medias  = response.data.data;
                     this.loading = false;
                 });
             },
@@ -291,7 +298,7 @@
     }
 </script>
 
-<style lang="sass-loader" rel="stylesheet/scss">
+<style lang="sass-loader" rel="stylesheet/scss" scoped>
     $container-height: 400px;
     $base-color: #4da7e8;
 
@@ -370,6 +377,12 @@
                             font-size: 14px;
                             font-weight: 600;
                             line-height: 1.4em;
+
+                            -webkit-touch-callout: none;
+                            -webkit-user-select: none;
+                            -moz-user-select: none;
+                            -ms-user-select: none;
+                            user-select: none;
                         }
                     }
                 }
