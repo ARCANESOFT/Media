@@ -40,25 +40,30 @@ class RouteServiceProvider extends ServiceProvider
     /**
      * Define the routes for the application.
      *
-     * @param  \Illuminate\Contracts\Routing\Registrar $router
+     * @param  \Illuminate\Contracts\Routing\Registrar  $router
      */
     public function map(Router $router)
     {
-        $this->mapFoundationRoutes($router);
+        $this->mapAdminRoutes($router);
     }
 
-    private function mapFoundationRoutes(Router $router)
+    /**
+     * Register the admin routes.
+     *
+     * @param  \Illuminate\Contracts\Routing\Registrar  $router
+     */
+    private function mapAdminRoutes(Router $router)
     {
         $attributes = array_merge($this->getFoundationRouteGroup(), [
-            'as'        => 'media::foundation.',
-            'namespace' => 'Arcanesoft\\Media\\Http\\Controllers',
+            'as'        => 'admin::media.',
+            'namespace' => 'Arcanesoft\\Media\\Http\\Controllers\\Admin',
         ]);
 
         $router->group(array_merge(
             $attributes,
             ['prefix' => $this->getFoundationAuthPrefix()]
         ), function (Router $router) {
-            Routes\MediaRoutes::register($router);
+            Routes\Admin\MediaRoutes::register($router);
         });
     }
 }

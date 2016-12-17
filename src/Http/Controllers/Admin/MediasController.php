@@ -1,5 +1,6 @@
-<?php namespace Arcanesoft\Media\Http\Controllers;
+<?php namespace Arcanesoft\Media\Http\Controllers\Admin;
 
+use Arcanesoft\Media\Http\Controllers\Admin\Controller;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
@@ -8,7 +9,7 @@ use Illuminate\Support\Str;
 /**
  * Class     MediasController
  *
- * @package  Arcanesoft\Media\Http\Controllers
+ * @package  Arcanesoft\Media\Http\Controllers\Admin
  * @author   ARCANEDEV <arcanedev.maroc@gmail.com>
  */
 class MediasController extends Controller

@@ -1,4 +1,4 @@
-<?php namespace Arcanesoft\Media\Http\Routes;
+<?php namespace Arcanesoft\Media\Http\Routes\Admin;
 
 use Arcanedev\Support\Bases\RouteRegister;
 use Illuminate\Contracts\Routing\Registrar;
@@ -28,20 +28,22 @@ class MediaRoutes extends RouteRegister
         $this->registerApiRoutes();
     }
 
+    /**
+     * Register the media api routes.
+     */
     private function registerApiRoutes()
     {
         // TODO: Adding ajax middleware
         $this->group(['prefix' => 'api', 'as' => 'api.'], function () {
-            // media::foundation.api.get
+            // admin::media.api.get
             $this->get('all', 'MediasController@getAll')->name('get');
-            // media::foundation.api.upload
+            // admin::media.api.upload
             $this->post('upload', 'MediasController@uploadMedia')->name('upload');
-            // media::foundation.api.delete
+            // admin::media.api.delete
             $this->post('rename', 'MediasController@renameMedia')->name('rename');
-            // media::foundation.api.delete
+            // admin::media.api.delete
             $this->post('delete', 'MediasController@deleteMedia')->name('delete');
-
-            // media::foundation.api.create
+            // admin::media.api.create
             $this->post('create', 'MediasController@createDirectory')->name('create');
         });
     }
