@@ -5,6 +5,12 @@ use Arcanesoft\Media\Http\Routes;
 use Illuminate\Contracts\Routing\Registrar as Router;
 use Illuminate\Support\Arr;
 
+/**
+ * Class     RouteServiceProvider
+ *
+ * @package  Arcanesoft\Media\Providers
+ * @author   ARCANEDEV <arcanedev.maroc@gmail.com>
+ */
 class RouteServiceProvider extends ServiceProvider
 {
     /* ------------------------------------------------------------------------------------------------
@@ -12,23 +18,13 @@ class RouteServiceProvider extends ServiceProvider
      | ------------------------------------------------------------------------------------------------
      */
     /**
-     * Get the routes namespace
-     *
-     * @return string
-     */
-    protected function getRouteNamespace()
-    {
-        return 'Arcanesoft\\Media\\Http\\Routes';
-    }
-
-    /**
      * Get the auth foundation route prefix.
      *
      * @return string
      */
-    public function getFoundationAuthPrefix()
+    public function getAdminMediaPrefix()
     {
-        $prefix = Arr::get($this->getFoundationRouteGroup(), 'prefix', 'dashboard');
+        $prefix = Arr::get($this->getAdminRouteGroup(), 'prefix', 'dashboard');
 
         return "$prefix/" . config('arcanesoft.media.route.prefix', 'media');
     }
@@ -54,14 +50,14 @@ class RouteServiceProvider extends ServiceProvider
      */
     private function mapAdminRoutes(Router $router)
     {
-        $attributes = array_merge($this->getFoundationRouteGroup(), [
+        $attributes = array_merge($this->getAdminRouteGroup(), [
             'as'        => 'admin::media.',
             'namespace' => 'Arcanesoft\\Media\\Http\\Controllers\\Admin',
         ]);
 
         $router->group(array_merge(
             $attributes,
-            ['prefix' => $this->getFoundationAuthPrefix()]
+            ['prefix' => $this->getAdminMediaPrefix()]
         ), function (Router $router) {
             Routes\Admin\MediaRoutes::register($router);
         });

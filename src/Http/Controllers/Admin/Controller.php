@@ -1,6 +1,6 @@
 <?php namespace Arcanesoft\Media\Http\Controllers\Admin;
 
-use Arcanesoft\Core\Bases\FoundationController as BaseController;
+use Arcanesoft\Core\Bases\AdminController as BaseController;
 use Arcanesoft\Core\Traits\Notifyable;
 
 /**

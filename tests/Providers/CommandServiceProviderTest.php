@@ -14,7 +14,7 @@ class CommandServiceProviderTest extends TestCase
      |  Properties
      | ------------------------------------------------------------------------------------------------
      */
-    /** @var  \Arcanesoft\Media\Providers\CommandServiceProvider */
+    /** @var  \Arcanesoft\Media\Providers\ConsoleServiceProvider */
     private $provider;
 
     /* ------------------------------------------------------------------------------------------------
@@ -25,7 +25,7 @@ class CommandServiceProviderTest extends TestCase
     {
         parent::setUp();
 
-        $this->provider = $this->app->getProvider(\Arcanesoft\Media\Providers\CommandServiceProvider::class);
+        $this->provider = $this->app->getProvider(\Arcanesoft\Media\Providers\ConsoleServiceProvider::class);
     }
 
     public function tearDown()
@@ -45,7 +45,7 @@ class CommandServiceProviderTest extends TestCase
         $expectations = [
             \Illuminate\Support\ServiceProvider::class,
             \Arcanedev\Support\ServiceProvider::class,
-            \Arcanesoft\Media\Providers\CommandServiceProvider::class,
+            \Arcanesoft\Media\Providers\ConsoleServiceProvider::class,
         ];
 
         foreach ($expectations as $expected) {

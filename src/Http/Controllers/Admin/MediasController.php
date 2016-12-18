@@ -1,6 +1,5 @@
 <?php namespace Arcanesoft\Media\Http\Controllers\Admin;
 
-use Arcanesoft\Media\Http\Controllers\Admin\Controller;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
@@ -36,7 +35,7 @@ class MediasController extends Controller
     {
         $this->setTitle('Media');
 
-        return $this->view('manager');
+        return $this->view('admin.manager');
     }
 
     public function getAll(Request $request)
