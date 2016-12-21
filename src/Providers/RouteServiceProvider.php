@@ -3,7 +3,6 @@
 use Arcanesoft\Core\Bases\RouteServiceProvider as ServiceProvider;
 use Arcanesoft\Media\Http\Routes;
 use Illuminate\Contracts\Routing\Registrar as Router;
-use Illuminate\Support\Arr;
 
 /**
  * Class     RouteServiceProvider
@@ -13,22 +12,6 @@ use Illuminate\Support\Arr;
  */
 class RouteServiceProvider extends ServiceProvider
 {
-    /* ------------------------------------------------------------------------------------------------
-     |  Getters & Setters
-     | ------------------------------------------------------------------------------------------------
-     */
-    /**
-     * Get the auth foundation route prefix.
-     *
-     * @return string
-     */
-    public function getAdminMediaPrefix()
-    {
-        $prefix = Arr::get($this->getAdminRouteGroup(), 'prefix', 'dashboard');
-
-        return "$prefix/" . config('arcanesoft.media.route.prefix', 'media');
-    }
-
     /* ------------------------------------------------------------------------------------------------
      |  Main Functions
      | ------------------------------------------------------------------------------------------------
@@ -43,6 +26,10 @@ class RouteServiceProvider extends ServiceProvider
         $this->mapAdminRoutes($router);
     }
 
+    /* ------------------------------------------------------------------------------------------------
+     |  Routes
+     | ------------------------------------------------------------------------------------------------
+     */
     /**
      * Register the admin routes.
      *
@@ -50,15 +37,13 @@ class RouteServiceProvider extends ServiceProvider
      */
     private function mapAdminRoutes(Router $router)
     {
-        $attributes = array_merge($this->getAdminRouteGroup(), [
-            'as'        => 'admin::media.',
-            'namespace' => 'Arcanesoft\\Media\\Http\\Controllers\\Admin',
-        ]);
+        $attributes = $this->getAdminAttributes(
+            'media.',
+            'Arcanesoft\\Media\\Http\\Controllers\\Admin',
+            $this->config()->get('arcanesoft.media.route.prefix', 'media')
+        );
 
-        $router->group(array_merge(
-            $attributes,
-            ['prefix' => $this->getAdminMediaPrefix()]
-        ), function (Router $router) {
+        $router->group($attributes, function (Router $router) {
             Routes\Admin\MediaRoutes::register($router);
         });
     }
