@@ -1,19 +1,19 @@
 <?php namespace Arcanesoft\Media\Tests;
 
 /**
- * Class     MediaServiceProviderTest
+ * Class     MediaTest
  *
  * @package  Arcanesoft\Media\Tests
  * @author   ARCANEDEV <arcanedev.maroc@gmail.com>
  */
-class MediaServiceProviderTest extends TestCase
+class MediaTest extends TestCase
 {
     /* ------------------------------------------------------------------------------------------------
      |  Properties
      | ------------------------------------------------------------------------------------------------
      */
-    /** @var  \Arcanesoft\Media\MediaServiceProvider */
-    protected $provider;
+    /** @var  \Arcanesoft\Media\Contracts\Media */
+    protected $media;
 
     /* ------------------------------------------------------------------------------------------------
      |  Main Functions
@@ -23,12 +23,12 @@ class MediaServiceProviderTest extends TestCase
     {
         parent::setUp();
 
-        $this->provider = $this->app->getProvider(\Arcanesoft\Media\MediaServiceProvider::class);
+        $this->media = $this->app->make(\Arcanesoft\Media\Contracts\Media::class);
     }
 
     public function tearDown()
     {
-        unset($this->provider);
+        unset($this->media);
 
         parent::tearDown();
     }
@@ -41,25 +41,21 @@ class MediaServiceProviderTest extends TestCase
     public function it_can_be_instantiated()
     {
         $expectations = [
-            \Illuminate\Support\ServiceProvider::class,
-            \Arcanedev\Support\ServiceProvider::class,
-            \Arcanedev\Support\PackageServiceProvider::class,
-            \Arcanesoft\Core\Bases\PackageServiceProvider::class,
-            \Arcanesoft\Media\MediaServiceProvider::class,
+            \Arcanesoft\Media\Contracts\Media::class,
+            \Arcanesoft\Media\Media::class,
         ];
 
         foreach ($expectations as $expected) {
-            $this->assertInstanceOf($expected, $this->provider);
+            $this->assertInstanceOf($expected, $this->media);
         }
     }
 
     /** @test */
-    public function it_can_provides()
+    public function it_can_get_default_disk()
     {
-        $expected = [
-            \Arcanesoft\Media\Contracts\Media::class,
-        ];
-
-        $this->assertSame($expected, $this->provider->provides());
+        $this->assertInstanceOf(
+            \Illuminate\Filesystem\FilesystemAdapter::class,
+            $this->media->defaultDisk()
+        );
     }
 }

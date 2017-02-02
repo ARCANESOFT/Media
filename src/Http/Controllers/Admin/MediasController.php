@@ -77,7 +77,7 @@ class MediasController extends Controller
     public function createDirectory(Request $request)
     {
         $data      = $request->all();
-        $validator = \Validator::make($data, [
+        $validator = validator($data, [
             'name'     => 'required', // TODO: check if the folder does not exists
             'location' => 'required',
         ]);
@@ -103,7 +103,7 @@ class MediasController extends Controller
         $data      = $request->all();
 
         // TODO: check if the folder does not exists
-        $validator = \Validator::make($data, [
+        $validator = validator($data, [
             'media'    => 'required',
             'newName'  => 'required',
             'location' => 'required',
@@ -117,7 +117,7 @@ class MediasController extends Controller
 
         $location = trim($data['location'], '/');
         $media    = $data['media'];
-        $src  = $location . '/' . $media['name'];
+        $src      = $location . '/' . $media['name'];
 
         if ($media['type'] == 'file') {
             $ext = pathinfo($media['url'], PATHINFO_EXTENSION);

@@ -43,8 +43,9 @@ class RouteServiceProvider extends ServiceProvider
             $this->config()->get('arcanesoft.media.route.prefix', 'media')
         );
 
-        $router->group($attributes, function (Router $router) {
+        $router->group($attributes, function ($router) {
             Routes\Admin\MediaRoutes::register($router);
+            Routes\Admin\ApiRoutes::register($router); // TODO: Adding `api` or `ajax` middleware ?
         });
     }
 }
