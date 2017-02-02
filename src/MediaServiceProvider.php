@@ -45,6 +45,8 @@ class MediaServiceProvider extends PackageServiceProvider
      */
     public function register()
     {
+        parent::register();
+
         $this->registerConfig();
         $this->registerSidebarItems();
         $this->registerProviders([
@@ -55,6 +57,7 @@ class MediaServiceProvider extends PackageServiceProvider
         $this->registerConsoleServiceProvider(Providers\ConsoleServiceProvider::class);
 
         $this->syncFilesystemConfig();
+        $this->registerMediaManager();
     }
 
     /**
@@ -82,7 +85,7 @@ class MediaServiceProvider extends PackageServiceProvider
     public function provides()
     {
         return [
-            //
+            Contracts\Media::class,
         ];
     }
 
@@ -98,6 +101,14 @@ class MediaServiceProvider extends PackageServiceProvider
         foreach ($this->config()->get('arcanesoft.media.filesystem.disks', []) as $disk => $config) {
             $this->config()->set("filesystems.disks.$disk", $config);
         }
+    }
+
+    /**
+     * Register the media manager.
+     */
+    private function registerMediaManager()
+    {
+        $this->singleton(Contracts\Media::class, Media::class);
     }
 
     /**
