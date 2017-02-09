@@ -1,7 +1,6 @@
 <?php namespace Arcanesoft\Media;
 
 use Arcanesoft\Core\Bases\PackageServiceProvider;
-use Arcanesoft\Core\CoreServiceProvider;
 
 /**
  * Class     MediaServiceProvider
@@ -50,7 +49,6 @@ class MediaServiceProvider extends PackageServiceProvider
         $this->registerConfig();
         $this->registerSidebarItems();
         $this->registerProviders([
-            CoreServiceProvider::class,
             Providers\PackagesServiceProvider::class,
             Providers\AuthorizationServiceProvider::class,
         ]);

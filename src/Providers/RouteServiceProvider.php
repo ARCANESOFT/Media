@@ -2,7 +2,6 @@
 
 use Arcanesoft\Core\Bases\RouteServiceProvider as ServiceProvider;
 use Arcanesoft\Media\Http\Routes;
-use Illuminate\Contracts\Routing\Registrar as Router;
 
 /**
  * Class     RouteServiceProvider
@@ -18,12 +17,10 @@ class RouteServiceProvider extends ServiceProvider
      */
     /**
      * Define the routes for the application.
-     *
-     * @param  \Illuminate\Contracts\Routing\Registrar  $router
      */
-    public function map(Router $router)
+    public function map()
     {
-        $this->mapAdminRoutes($router);
+        $this->mapAdminRoutes();
     }
 
     /* ------------------------------------------------------------------------------------------------
@@ -32,10 +29,8 @@ class RouteServiceProvider extends ServiceProvider
      */
     /**
      * Register the admin routes.
-     *
-     * @param  \Illuminate\Contracts\Routing\Registrar  $router
      */
-    private function mapAdminRoutes(Router $router)
+    private function mapAdminRoutes()
     {
         $attributes = $this->getAdminAttributes(
             'media.',
@@ -43,9 +38,9 @@ class RouteServiceProvider extends ServiceProvider
             $this->config()->get('arcanesoft.media.route.prefix', 'media')
         );
 
-        $router->group($attributes, function ($router) {
-            Routes\Admin\MediaRoutes::register($router);
-            Routes\Admin\ApiRoutes::register($router); // TODO: Adding `api` or `ajax` middleware ?
+        $this->group($attributes, function () {
+            Routes\Admin\MediaRoutes::register();
+            Routes\Admin\ApiRoutes::register(); // TODO: Adding `api` or `ajax` middleware ?
         });
     }
 }
