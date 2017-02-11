@@ -11,9 +11,9 @@ use Arcanesoft\Media\Http\Routes;
  */
 class RouteServiceProvider extends ServiceProvider
 {
-    /* ------------------------------------------------------------------------------------------------
-     |  Main Functions
-     | ------------------------------------------------------------------------------------------------
+    /* -----------------------------------------------------------------
+     |  Main Methods
+     | -----------------------------------------------------------------
      */
     /**
      * Define the routes for the application.
@@ -23,14 +23,10 @@ class RouteServiceProvider extends ServiceProvider
         $this->mapAdminRoutes();
     }
 
-    /* ------------------------------------------------------------------------------------------------
-     |  Routes
-     | ------------------------------------------------------------------------------------------------
-     */
     /**
      * Register the admin routes.
      */
-    private function mapAdminRoutes()
+    protected function mapAdminRoutes()
     {
         $attributes = $this->getAdminAttributes(
             'media.',

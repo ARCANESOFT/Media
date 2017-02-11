@@ -12,7 +12,7 @@ return [
             'media'  => [
                 'driver' => 'local',
                 'root'   => public_path('uploads'),
-                'url'    => '/uploads'
+                'url'    => env('APP_URL').'/uploads'
             ],
         ],
     ],

@@ -1,7 +1,9 @@
 <?php namespace Arcanesoft\Media;
 
 use Arcanesoft\Media\Contracts\Media as MediaContract;
+use Carbon\Carbon;
 use Illuminate\Contracts\Foundation\Application;
+use Illuminate\Http\UploadedFile;
 
 /**
  * Class     Media
@@ -11,9 +13,9 @@ use Illuminate\Contracts\Foundation\Application;
  */
 class Media implements MediaContract
 {
-    /* ------------------------------------------------------------------------------------------------
+    /* -----------------------------------------------------------------
      |  Properties
-     | ------------------------------------------------------------------------------------------------
+     | -----------------------------------------------------------------
      */
     /**
      * The application instance.
@@ -22,9 +24,9 @@ class Media implements MediaContract
      */
     protected $app;
 
-    /* ------------------------------------------------------------------------------------------------
+    /* -----------------------------------------------------------------
      |  Constructor
-     | ------------------------------------------------------------------------------------------------
+     | -----------------------------------------------------------------
      */
     /**
      * Media constructor.
@@ -36,9 +38,9 @@ class Media implements MediaContract
         $this->app = $app;
     }
 
-    /* ------------------------------------------------------------------------------------------------
+    /* -----------------------------------------------------------------
      |  Getters & Setters
-     | ------------------------------------------------------------------------------------------------
+     | -----------------------------------------------------------------
      */
     /**
      * Get the Filesystem Manager instance.
@@ -60,16 +62,26 @@ class Media implements MediaContract
         return $this->app->make('config');
     }
 
-    /* ------------------------------------------------------------------------------------------------
-     |  Main Functions
-     | ------------------------------------------------------------------------------------------------
+    /**
+     * Get the default disk name.
+     *
+     * @return string
+     */
+    public function getDefaultDiskName()
+    {
+        return $this->config()->get('arcanesoft.media.filesystem.default');
+    }
+
+    /* -----------------------------------------------------------------
+     |  Main Methods
+     | -----------------------------------------------------------------
      */
     /**
      * Get a filesystem adapter.
      *
      * @param  string|null  $driver
      *
-     * @return \Illuminate\Contracts\Filesystem\Filesystem
+     * @return \Illuminate\Filesystem\FilesystemAdapter|\Illuminate\Contracts\Filesystem\Filesystem
      */
     public function disk($driver = null)
     {
@@ -79,12 +91,127 @@ class Media implements MediaContract
     /**
      * Get the default filesystem adapter.
      *
-     * @return \Illuminate\Contracts\Filesystem\Filesystem
+     * @return \Illuminate\Filesystem\FilesystemAdapter|\Illuminate\Contracts\Filesystem\Filesystem
      */
     public function defaultDisk()
     {
-        return $this->disk(
-            $this->config()->get('arcanesoft.media.filesystem.default')
-        );
+        return $this->disk($this->getDefaultDiskName());
+    }
+
+    /**
+     * Get all of the directories within a given directory.
+     *
+     * @param  string  $directory
+     *
+     * @return \Arcanesoft\Media\Entities\DirectoryCollection
+     */
+    public function directories($directory)
+    {
+        $directories = array_map(function ($dir) use ($directory) {
+            return [
+                'name' => str_replace("$directory/", '', $dir),
+                'path' => $dir,
+            ];
+        }, $this->defaultDisk()->directories($directory));
+
+        return Entities\DirectoryCollection::make($directories);
+    }
+
+    /**
+     * Get a collection of all files in a directory.
+     *
+     * @param  string  $directory
+     *
+     * @return \Arcanesoft\Media\Entities\FileCollection
+     */
+    public function files($directory)
+    {
+        $disk  = $this->defaultDisk();
+
+        // TODO: Add a feature to exclude unwanted files.
+        $files = array_map(function ($filePath) use ($disk, $directory) {
+            return [
+                'name'         => str_replace("$directory/", '', $filePath),
+                'path'         => $filePath,
+                'url'          => $disk->url($filePath),
+                'mimetype'     => $disk->mimeType($filePath),
+                'lastModified' => Carbon::createFromTimestamp($disk->lastModified($filePath))->toDateTimeString(),
+                'visibility'   => $disk->getVisibility($filePath),
+                'size'         => $disk->size($filePath),
+            ];
+        }, $disk->files($directory));
+
+        return Entities\FileCollection::make($files);
+    }
+
+    /**
+     * Get all the directories & files from a given location.
+     *
+     * @param  string  $directory
+     *
+     * @return array
+     */
+    public function all($directory)
+    {
+        $directories = $this->directories($directory)->transform(function ($item) {
+            return $item + ['type' => self::MEDIA_TYPE_DIRECTORY];
+        })->toArray();
+
+        $files = $this->files($directory)->transform(function (array $item) {
+            return $item + ['type' => self::MEDIA_TYPE_FILE];
+        })->toArray();
+
+        return array_merge($directories, $files);
+    }
+
+    /**
+     * Store an array of files.
+     *
+     * @param  string  $directory
+     * @param  array   $files
+     */
+    public function storeMany($directory, array $files)
+    {
+        foreach ($files as $file) {
+            $this->store($directory, $file);
+        }
+    }
+
+    /**
+     * Store a file.
+     *
+     * @param  string                         $directory
+     * @param  \Illuminate\Http\UploadedFile  $file
+     *
+     * @return string|false
+     */
+    public function store($directory, UploadedFile $file)
+    {
+        return $file->store($directory, $this->getDefaultDiskName());
+    }
+
+    /**
+     * Create a directory.
+     *
+     * @param  string  $path
+     *
+     * @return bool
+     */
+    public function makeDirectory($path)
+    {
+        return $this->defaultDisk()->makeDirectory($path);
+    }
+
+    /**
+     * Move a file to a new location.
+     *
+     * @param  string  $from
+     * @param  string  $to
+     *
+     * @return bool
+     */
+    public function move($from, $to)
+    {
+        return $this->defaultDisk()->move($from, $to);
     }
 }

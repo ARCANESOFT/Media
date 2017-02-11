@@ -1,8 +1,7 @@
 <?php namespace Arcanesoft\Media\Http\Controllers\Admin;
 
-use Carbon\Carbon;
+use Arcanesoft\Media\Contracts\Media;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
 
 /**
@@ -13,23 +12,43 @@ use Illuminate\Support\Str;
  */
 class MediasController extends Controller
 {
-    /* ------------------------------------------------------------------------------------------------
+    /* -----------------------------------------------------------------
+     |  Properties
+     | -----------------------------------------------------------------
+     */
+    /**
+     * The media instance.
+     *
+     * @var  \Arcanesoft\Media\Contracts\Media
+     */
+    protected $media;
+
+    /* -----------------------------------------------------------------
      |  Constructor
-     | ------------------------------------------------------------------------------------------------
+     | -----------------------------------------------------------------
      */
     /**
      * MediasController constructor.
+     *
+     * @param  \Arcanesoft\Media\Contracts\Media  $media
      */
-    public function __construct()
+    public function __construct(Media $media)
     {
         parent::__construct();
+
+        $this->media = $media;
 
         $this->setCurrentPage('media');
     }
 
-    /* ------------------------------------------------------------------------------------------------
-     |  Main Functions
-     | ------------------------------------------------------------------------------------------------
+    /* -----------------------------------------------------------------
+     |  Main Methods
+     | -----------------------------------------------------------------
+     */
+    /**
+     * Show the media manager page.
+     *
+     * @return \Illuminate\View\View
      */
     public function index()
     {
@@ -38,6 +57,13 @@ class MediasController extends Controller
         return $this->view('admin.manager');
     }
 
+    /**
+     * Get the the media files.
+     *
+     * @param  \Illuminate\Http\Request  $request
+     *
+     * @return \Illuminate\Http\JsonResponse
+     */
     public function getAll(Request $request)
     {
         $location = $request->get('location');
@@ -45,35 +71,46 @@ class MediasController extends Controller
 
         return response()->json([
             'status' => 'success',
-            'data'   => array_merge(
-                $this->getDirectoriesFromLocation($location),
-                $this->getFilesFromLocation($location)
-            ),
+            'data'   => $this->media->all($location),
         ]);
     }
 
+    /**
+     * Upload a media file.
+     *
+     * @param  \Illuminate\Http\Request  $request
+     *
+     * @return \Illuminate\Http\JsonResponse
+     */
     public function uploadMedia(Request $request)
     {
-        $validator = \Validator::make($request->all(), [
+        $validator = validator($request->all(), [
             'location' => 'required',
             'medias'   => 'required|array',
             'medias.*' => 'required|file'
         ]);
 
         if ($validator->fails()) {
-            return response()->json(['status' => 'error', 'errors' => $validator->messages()]);
+            return response()->json([
+                'status' => 'error',
+                'errors' => $validator->messages(),
+            ]);
         }
 
-        $location = $request->get('location');
-
-        foreach ($request->file('medias') as $media) {
-            /** @var \Illuminate\Http\UploadedFile  $media */
-            $media->store($location, $this->getDefaultDiskDriver());
-        }
+        $this->media->storeMany(
+            $request->get('location'), $request->file('medias')
+        );
 
         return response()->json(['status' => 'success']);
     }
 
+    /**
+     * Create a directory.
+     *
+     * @param  \Illuminate\Http\Request  $request
+     *
+     * @return \Illuminate\Http\JsonResponse
+     */
     public function createDirectory(Request $request)
     {
         $data      = $request->all();
@@ -82,15 +119,16 @@ class MediasController extends Controller
             'location' => 'required',
         ]);
 
-        $path = trim($data['location'], '/') . '/' . str_slug($data['name']);
-
         if ($validator->fails()) {
             return response()->json([
                 'status' => 'error',
+                'errors' => $validator->messages(),
             ], 400);
         }
 
-        $this->disk()->makeDirectory($path);
+        $this->media->makeDirectory(
+            $path = trim($data['location'], '/').'/'.Str::slug($data['name'])
+        );
 
         return response()->json([
             'status' => 'success',
@@ -100,11 +138,11 @@ class MediasController extends Controller
 
     public function renameMedia(Request $request)
     {
-        $data      = $request->all();
+        $data = $request->all();
 
         // TODO: check if the folder does not exists
         $validator = validator($data, [
-            'media'    => 'required',
+            'media'    => 'required|array',
             'newName'  => 'required',
             'location' => 'required',
         ]);
@@ -112,116 +150,74 @@ class MediasController extends Controller
         if ($validator->fails()) {
             return response()->json([
                 'status' => 'error',
+                'errors' => $validator->messages(),
             ], 400);
         }
 
+        // TODO Refactor this...
         $location = trim($data['location'], '/');
-        $media    = $data['media'];
-        $src      = $location . '/' . $media['name'];
+        $from     = $location.'/'.$data['media']['name'];
 
-        if ($media['type'] == 'file') {
-            $ext = pathinfo($media['url'], PATHINFO_EXTENSION);
-            $dest = $location . '/' . Str::slug(str_replace(".{$ext}", '', $data['newName'])).'.'.$ext;
-            $this->disk()->move($src, $dest);
+        switch ($data['media']['type']) {
+            case Media::MEDIA_TYPE_FILE:
+                return $this->moveFile($location, $from, $data);
 
-            return response()->json([
-                'status' => 'success',
-                'data'   => ['path' => $dest],
-            ]);
+            case Media::MEDIA_TYPE_DIRECTORY:
+                return $this->moveDirectory($location, $from, $data);
+
+            default:
+                return response()->json([
+                    'status'  => 'error',
+                    'message' => 'Something wrong was happened while renaming the media.',
+                ], 400);
         }
-        elseif ($media['type'] == 'directory') {
-            $dest = $location . '/' . Str::slug($data['newName']);
-            $this->disk()->move($src, $dest);
-
-            return response()->json([
-                'status' => 'success',
-                'data'   => ['path' => $dest],
-            ]);
-        }
-
-        return response()->json([
-            'status'  => 'error',
-            'message' => 'Something wrong was happened while renaming the media.',
-        ], 400);
     }
 
     public function deleteMedia(Request $request)
     {
         // TODO: Add validation
         $data = $request->all();
+        $disk = $this->media->defaultDisk();
 
-        if ($data['media']['type'] == 'file') {
-            $deleted = $this->disk()->delete($data['media']['path']);
+        // TODO Refactor this...
+        if ($data['media']['type'] == Media::MEDIA_TYPE_FILE) {
+            $deleted = $disk->delete($data['media']['path']);
         }
         else {
             $path = trim($data['media']['path'], '/');
 
-            $deleted = $this->disk()->deleteDirectory($path);
+            $deleted = $disk->deleteDirectory($path);
         }
 
         return response()->json(['status' => $deleted ? 'success' : 'error']);
     }
 
-    /* ------------------------------------------------------------------------------------------------
-     |  Other Functions
-     | ------------------------------------------------------------------------------------------------
+    /* -----------------------------------------------------------------
+     |  Other Methods
+     | -----------------------------------------------------------------
      */
-    /**
-     * Get the default disk driver.
-     *
-     * @return \Illuminate\Filesystem\FilesystemAdapter
-     */
-    private function getDefaultDiskDriver()
+    private function moveFile($location, $from, array $data)
     {
-        return config('arcanesoft.media.filesystem.default');
+        $ext = pathinfo($data['media']['url'], PATHINFO_EXTENSION);
+        $to  = $location.'/'.Str::slug(str_replace(".{$ext}", '', $data['newName'])).'.'.$ext;
+
+        $this->media->move($from, $to);
+
+        return response()->json([
+            'status' => 'success',
+            'data'   => ['path' => $to],
+        ]);
     }
 
-    /**
-     * Get the disk adapter.
-     *
-     * @return \Illuminate\Filesystem\FilesystemAdapter
-     */
-    private function disk()
+    private function moveDirectory($location, $from, array $data)
     {
-        return Storage::disk($this->getDefaultDiskDriver());
-    }
+        $to = $location.'/'.Str::slug($data['newName']);
 
-    /**
-     * @param  string  $location
-     *
-     * @return array
-     */
-    private function getDirectoriesFromLocation($location)
-    {
-        return array_map(function ($directory) use ($location) {
-            return [
-                'name' => str_replace("$location/", '', $directory),
-                'path' => $directory,
-                'type' => 'directory',
-            ];
-        }, $this->disk()->directories($location));
-    }
+        $this->media->move($from, $to);
 
-    /**
-     * @param  string  $location
-     *
-     * @return array
-     */
-    private function getFilesFromLocation($location)
-    {
-        $disk   = $this->disk();
-
-        return array_map(function ($path) use ($disk, $location) {
-            return [
-                'name'         => str_replace("$location/", '', $path),
-                'type'         => 'file',
-                'path'         => $path,
-                'url'          => $disk->url($path),
-                'mimetype'     => $disk->mimeType($path),
-                'lastModified' => Carbon::createFromTimestamp($disk->lastModified($path))->toDateTimeString(),
-                'visibility'   => $disk->getVisibility($path),
-                'size'         => $disk->size($path),
-            ];
-        }, $disk->files($location));
+        return response()->json([
+            'status' => 'success',
+            'data'   => ['path' => $to],
+        ]);
     }
 }
