@@ -1,9 +1,11 @@
 <?php namespace Arcanesoft\Media;
 
 use Arcanesoft\Media\Contracts\Media as MediaContract;
+use Arcanesoft\Media\Exceptions\DirectoryNotFound;
 use Carbon\Carbon;
 use Illuminate\Contracts\Foundation\Application;
 use Illuminate\Http\UploadedFile;
+use Illuminate\Support\Str;
 
 /**
  * Class     Media
@@ -72,6 +74,28 @@ class Media implements MediaContract
         return $this->config()->get('arcanesoft.media.filesystem.default');
     }
 
+    /**
+     * Get excluded directories.
+     *
+     * @return array
+     */
+    public function getExcludedDirectories()
+    {
+        return Helpers\ExcludePattern::directories(
+            $this->config()->get('arcanesoft.media.directories.excluded', [])
+        );
+    }
+
+    /**
+     * Get excluded files.
+     *
+     * @return array
+     */
+    public function getExcludedFiles()
+    {
+        return $this->config()->get('arcanesoft.media.files.excluded', []);
+    }
+
     /* -----------------------------------------------------------------
      |  Main Methods
      | -----------------------------------------------------------------
@@ -99,52 +123,6 @@ class Media implements MediaContract
     }
 
     /**
-     * Get all of the directories within a given directory.
-     *
-     * @param  string  $directory
-     *
-     * @return \Arcanesoft\Media\Entities\DirectoryCollection
-     */
-    public function directories($directory)
-    {
-        $directories = array_map(function ($dir) use ($directory) {
-            return [
-                'name' => str_replace("$directory/", '', $dir),
-                'path' => $dir,
-            ];
-        }, $this->defaultDisk()->directories($directory));
-
-        return Entities\DirectoryCollection::make($directories);
-    }
-
-    /**
-     * Get a collection of all files in a directory.
-     *
-     * @param  string  $directory
-     *
-     * @return \Arcanesoft\Media\Entities\FileCollection
-     */
-    public function files($directory)
-    {
-        $disk  = $this->defaultDisk();
-
-        // TODO: Add a feature to exclude unwanted files.
-        $files = array_map(function ($filePath) use ($disk, $directory) {
-            return [
-                'name'         => str_replace("$directory/", '', $filePath),
-                'path'         => $filePath,
-                'url'          => $disk->url($filePath),
-                'mimetype'     => $disk->mimeType($filePath),
-                'lastModified' => Carbon::createFromTimestamp($disk->lastModified($filePath))->toDateTimeString(),
-                'visibility'   => $disk->getVisibility($filePath),
-                'size'         => $disk->size($filePath),
-            ];
-        }, $disk->files($directory));
-
-        return Entities\FileCollection::make($files);
-    }
-
-    /**
      * Get all the directories & files from a given location.
      *
      * @param  string  $directory
@@ -162,6 +140,58 @@ class Media implements MediaContract
         })->toArray();
 
         return array_merge($directories, $files);
+    }
+
+    /**
+     * Get all of the directories within a given directory.
+     *
+     * @param  string  $directory
+     *
+     * @return \Arcanesoft\Media\Entities\DirectoryCollection
+     */
+    public function directories($directory)
+    {
+        $this->checkDirectory($directory);
+
+        $directories = array_map(function ($dir) use ($directory) {
+            return [
+                'name' => str_replace("$directory/", '', $dir),
+                'path' => $dir,
+            ];
+        }, $this->defaultDisk()->directories($directory));
+
+        return Entities\DirectoryCollection::make($directories)
+            ->exclude($this->getExcludedDirectories());
+    }
+
+    /**
+     * Get a collection of all files in a directory.
+     *
+     * @param  string  $directory
+     *
+     * @return \Arcanesoft\Media\Entities\FileCollection
+     */
+    public function files($directory)
+    {
+        $this->checkDirectory($directory);
+
+        $disk = $this->defaultDisk();
+
+        // TODO: Add a feature to exclude unwanted files.
+        $files = array_map(function ($filePath) use ($disk, $directory) {
+            return [
+                'name'         => str_replace("$directory/", '', $filePath),
+                'path'         => $filePath,
+                'url'          => $disk->url($filePath),
+                'mimetype'     => $disk->mimeType($filePath),
+                'lastModified' => Carbon::createFromTimestamp($disk->lastModified($filePath))->toDateTimeString(),
+                'visibility'   => $disk->getVisibility($filePath),
+                'size'         => $disk->size($filePath),
+            ];
+        }, $disk->files($directory));
+
+        return Entities\FileCollection::make($files)
+            ->exclude($this->getExcludedFiles());
     }
 
     /**
@@ -213,5 +243,85 @@ class Media implements MediaContract
     public function move($from, $to)
     {
         return $this->defaultDisk()->move($from, $to);
+    }
+
+    /* -----------------------------------------------------------------
+     |  Check Methods
+     | -----------------------------------------------------------------
+     */
+    /**
+     * Determine if a file/directory exists.
+     *
+     * @param  string  $path
+     *
+     * @return bool
+     */
+    public function exists($path)
+    {
+        return $this->defaultDisk()->exists($path);
+    }
+
+    /**
+     * Check if the directory is excluded.
+     *
+     * @param  string  $directory
+     *
+     * @return bool
+     */
+    public function isExcludedDirectory($directory)
+    {
+        foreach ($this->getExcludedDirectories() as $pattern) {
+            if (Str::is($pattern, $directory)) return true;
+        }
+
+        return false;
+    }
+
+    /* -----------------------------------------------------------------
+     |  Other Methods
+     | -----------------------------------------------------------------
+     */
+    /**
+     * Check the given directory location.
+     *
+     * @param  string  &$directory
+     *
+     * @throws \Arcanesoft\Media\Exceptions\DirectoryNotFound
+     * @throws \Arcanesoft\Media\Exceptions\AccessNotAllowed
+     */
+    protected function checkDirectory(&$directory)
+    {
+        $directory = trim($directory, '/');
+
+        $this->checkDirectoryExists($directory);
+        $this->checkDirectoryAccess($directory);
+    }
+
+    /**
+     * Check if the directory exists.
+     *
+     * @param  string  $directory
+     *
+     * @throws \Arcanesoft\Media\Exceptions\DirectoryNotFound
+     */
+    protected function checkDirectoryExists($directory)
+    {
+        if ( ! empty($directory) && ! $this->exists($directory)) {
+            throw new DirectoryNotFound("Directory [$directory] not found !", 404);
+        }
+    }
+
+    /**
+     * Check if can access the directory.
+     *
+     * @param  string  $directory
+     *
+     * @throws \Arcanesoft\Media\Exceptions\AccessNotAllowed
+     */
+    protected function checkDirectoryAccess($directory)
+    {
+        if ($this->isExcludedDirectory($directory)) {
+            throw new Exceptions\AccessNotAllowed('Access not allowed.', 405);
+        }
     }
 }

@@ -25,10 +25,8 @@
 </template>
 
 <script>
-    import config from './../Config'
-    import eventHub from './../../../../shared/EventHub'
-
-    import Dropzone from 'dropzone'
+    import config from './../Config';
+    import Dropzone from 'dropzone';
 
     Dropzone.autoDiscover = false;
 
