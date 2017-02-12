@@ -49,6 +49,15 @@ interface Media
     public function defaultDisk();
 
     /**
+     * Get all the directories & files from a given location.
+     *
+     * @param  string  $directory
+     *
+     * @return array
+     */
+    public function all($directory);
+
+    /**
      * Get all of the directories within a given directory.
      *
      * @param  string  $directory
@@ -65,15 +74,6 @@ interface Media
      * @return \Arcanesoft\Media\Entities\FileCollection
      */
     public function files($directory);
-
-    /**
-     * Get all the directories & files from a given location.
-     *
-     * @param  string  $directory
-     *
-     * @return array
-     */
-    public function all($directory);
 
     /**
      * Store an array of files.
@@ -111,4 +111,26 @@ interface Media
      * @return bool
      */
     public function move($from, $to);
+
+    /* -----------------------------------------------------------------
+     |  Check Methods
+     | -----------------------------------------------------------------
+     */
+    /**
+     * Determine if a file/directory exists.
+     *
+     * @param  string  $path
+     *
+     * @return bool
+     */
+    public function exists($path);
+
+    /**
+     * Check if the directory is excluded.
+     *
+     * @param  string  $directory
+     *
+     * @return bool
+     */
+    public function isExcludedDirectory($directory);
 }

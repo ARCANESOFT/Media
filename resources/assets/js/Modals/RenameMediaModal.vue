@@ -25,8 +25,7 @@
 </template>
 
 <script>
-    import config from './../Config'
-    import eventHub from './../../../../shared/EventHub'
+    import config from './../Config';
 
     export default {
         props: ['location', 'media'],

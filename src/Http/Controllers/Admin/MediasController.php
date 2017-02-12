@@ -66,8 +66,7 @@ class MediasController extends Controller
      */
     public function getAll(Request $request)
     {
-        $location = $request->get('location');
-        $location = trim($location, '/');
+        $location = $request->get('location', '/');
 
         return response()->json([
             'status' => 'success',

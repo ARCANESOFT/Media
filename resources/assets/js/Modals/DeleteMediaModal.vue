@@ -25,43 +25,59 @@
 </template>
 
 <script>
-    import config from './../Config'
-    import eventHub from './../../../../shared/EventHub'
+    import config from './../Config';
 
     export default {
         props: ['media'],
 
+        data() {
+            return {
+                modal: null,
+                submitBtn: null
+            }
+        },
+
+        components: {
+            'media-errors': require('./../Helpers/Errors.vue')
+        },
+
         created() {
-            let that = this;
+            let me = this;
 
             eventHub.$on('open-delete-media-modal', data => {
-                let modal = $('div#deleteFolderModal');
+                me.modal = $('div#deleteFolderModal');
 
-                modal.modal({
+                me.submitBtn = me.modal.find('button[type="submit"]');
+
+                me.modal.modal({
                     backdrop: 'static',
                     keyboard: false
                 });
-            })
+            });
         },
 
         methods: {
             deleteFolder(e) {
-                let $submitBtn = $(e.target.querySelector('button[type="submit"]'));
-                    $submitBtn.button('loading');
+                this.submitBtn.button('loading');
 
-                axios.post(config.endpoint + '/delete', {
+                axios.post(config.endpoint+'/delete', {
                         media: this.media
                     })
                     .then(response => {
                         this.$parent.refreshDirectory();
 
-                        $('div#deleteFolderModal').modal('hide');
+                        this.modal.modal('hide');
 
                         this.$parent.mediaModalClosed();
 
                         this.newDirectory = '';
 
-                        $submitBtn.button('reset');
+                        this.submitBtn.button('reset');
+                    })
+                    .catch(error => {
+                        this.submitBtn.button('reset');
+
+                        this.errors = error.response.data.errors;
                     });
             }
         }

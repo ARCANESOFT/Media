@@ -10,11 +10,7 @@
                     <div class="modal-body">
                         <input type="text" placeholder="Folder name" v-model="newDirectory" class="form-control" autofocus>
 
-                        <ul class="list-unstyled">
-                            <li v-for="error in errors">
-                                <span class="label label-danger">{{ errors.length }} {{ displayFirstError(error) }}</span>
-                            </li>
-                        </ul>
+                        <media-errors :errors="errors"></media-errors>
                     </div>
                     <div class="modal-footer">
                         <button type="button" class="btn btn-sm btn-default pull-left" data-dismiss="modal">
@@ -31,8 +27,7 @@
 </template>
 
 <script>
-    import config from './../Config'
-    import eventHub from './../../../../shared/EventHub'
+    import config from './../Config';
 
     export default {
         props: ['location'],
@@ -40,24 +35,32 @@
         data () {
             return {
                 newDirectory: '',
-                errors: {}
+                modal: null,
+                submitBtn: null,
+                errors: []
             }
         },
 
+        components: {
+            'media-errors': require('./../Helpers/Errors.vue')
+        },
+
         created() {
-            let that = this;
+            let me = this;
 
             eventHub.$on('open-new-folder-modal', data => {
-                let modal = $('div#newFolderModal');
+                me.modal = $('div#newFolderModal');
 
-                modal.modal('show');
+                me.submitBtn = me.modal.find('button[type="submit"]');
 
-                modal.on('shown.bs.modal', () => {
+                me.modal.modal('show');
+
+                me.modal.on('shown.bs.modal', () => {
                     $(this).find('[autofocus]').focus();
                 });
 
-                modal.on('hidden.bs.modal', () => {
-                    that.resetErrors();
+                me.modal.on('hidden.bs.modal', () => {
+                    me.resetErrors();
                 })
             });
         },
@@ -66,35 +69,30 @@
             createFolder(e) {
                 this.resetErrors();
 
-                let $submitBtn = $(e.target.querySelector('button[type="submit"]'));
-                    $submitBtn.button('loading');
+                this.submitBtn.button('loading');
 
-                axios.post(config.endpoint + '/create', {
+                axios.post(config.endpoint+'/create', {
                         name: this.newDirectory,
                         location: this.location
                     })
                     .then(response => {
                         this.$parent.refreshDirectory();
 
-                        $('div#newFolderModal').modal('hide');
+                        this.modal.modal('hide');
 
                         this.$parent.mediaModalClosed();
 
                         this.newDirectory = '';
                     })
                     .catch(error => {
-                        $submitBtn.button('reset');
+                        this.submitBtn.button('reset');
 
                         this.errors = error.response.data.errors;
                     });
             },
 
-            displayFirstError(error) {
-                return _.first(error)
-            },
-
             resetErrors() {
-                this.errors = {};
+                this.errors = [];
             }
         }
     }

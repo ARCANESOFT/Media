@@ -86,8 +86,7 @@
 </template>
 
 <script>
-    import config from './Config'
-    import eventHub from './../../../shared/EventHub'
+    import config from './Config';
 
     export default {
         props: {
@@ -173,12 +172,14 @@
             currentUri() {
                 return this.breadcrumbs.length == 0 ? '/' : this.breadcrumbs.join('/')
             },
+
             selectedUri() {
                 if (this.selected == null)
                     return this.currentUri;
 
                 return this.currentUri + this.selected.name;
             },
+
             mediasCount() {
                 return this.medias.length;
             }
@@ -189,7 +190,7 @@
                 this.breadcrumbs = [];
                 this.resetSelected();
 
-                axios.get(config.endpoint + '/all').then((response) => {
+                axios.get(config.endpoint+'/all').then((response) => {
                     this.medias = response.data.data;
                     this.loading = false;
                 });
@@ -244,7 +245,7 @@
                 this.resetSelected();
                 this.loading = true;
 
-                axios.get(config.endpoint + '/all?location=' + location).then(response => {
+                axios.get(config.endpoint+'/all?location='+location).then(response => {
                     this.medias  = response.data.data;
                     this.loading = false;
                 });
