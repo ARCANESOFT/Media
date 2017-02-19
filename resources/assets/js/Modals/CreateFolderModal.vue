@@ -28,6 +28,7 @@
 
 <script>
     import config from './../Config';
+    import events from './../Events';
 
     export default {
         props: ['location'],
@@ -46,46 +47,40 @@
         },
 
         created() {
-            let me = this;
+            eventHub.$on(events.OPEN_NEW_FOLDER_MODAL, data => {
+                this.modal     = $('div#newFolderModal');
+                this.submitBtn = this.modal.find('button[type="submit"]');
 
-            eventHub.$on('open-new-folder-modal', data => {
-                me.modal = $('div#newFolderModal');
+                this.modal.modal('show');
 
-                me.submitBtn = me.modal.find('button[type="submit"]');
-
-                me.modal.modal('show');
-
-                me.modal.on('shown.bs.modal', () => {
-                    $(this).find('[autofocus]').focus();
+                this.modal.on('shown.bs.modal', () => {
+                    this.modal.find('[autofocus]').focus();
                 });
 
-                me.modal.on('hidden.bs.modal', () => {
-                    me.resetErrors();
+                this.modal.on('hidden.bs.modal', () => {
+                    this.resetErrors();
                 })
             });
         },
 
         methods: {
             createFolder(e) {
+                this.disableSubmitBtn();
                 this.resetErrors();
-
-                this.submitBtn.button('loading');
 
                 axios.post(config.endpoint+'/create', {
                         name: this.newDirectory,
                         location: this.location
                     })
                     .then(response => {
-                        this.$parent.refreshDirectory();
-
                         this.modal.modal('hide');
-
-                        this.$parent.mediaModalClosed();
-
                         this.newDirectory = '';
+                        this.resetSubmitBtn();
+
+                        eventHub.$emit(events.MEDIA_MODAL_CLOSED, true);
                     })
                     .catch(error => {
-                        this.submitBtn.button('reset');
+                        this.resetSubmitBtn();
 
                         this.errors = error.response.data.errors;
                     });
@@ -93,6 +88,14 @@
 
             resetErrors() {
                 this.errors = [];
+            },
+
+            disableSubmitBtn() {
+                this.submitBtn.button('loading');
+            },
+
+            resetSubmitBtn() {
+                this.submitBtn.button('reset');
             }
         }
     }

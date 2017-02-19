@@ -26,6 +26,7 @@
 
 <script>
     import config from './../Config';
+    import events from './../Events';
 
     export default {
         props: ['location', 'media'],
@@ -37,7 +38,7 @@
         created() {
             this.newName = this.media !== null ? this.media.name : '';
 
-            eventHub.$on('open-rename-media-modal', data => {
+            eventHub.$on(events.OPEN_RENAME_MEDIA_MODAL, data => {
                 $('div#renameFolderModal').modal('show');
             })
         },
@@ -51,11 +52,9 @@
                             newName:  this.newName
                         })
                         .then(response => {
-                            this.$parent.refreshDirectory();
+                            eventHub.$emit(events.MEDIA_MODAL_CLOSED, true);
 
                             $('div#renameFolderModal').modal('hide');
-
-                            this.$parent.mediaModalClosed();
                         });
                 }
             }

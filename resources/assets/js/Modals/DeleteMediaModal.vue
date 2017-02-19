@@ -26,6 +26,7 @@
 
 <script>
     import config from './../Config';
+    import events from './../Events';
 
     export default {
         props: ['media'],
@@ -42,43 +43,45 @@
         },
 
         created() {
-            let me = this;
+            eventHub.$on(events.OPEN_DELETE_MEDIA_MODAL, data => {
+                this.modal     = $('div#deleteFolderModal');
+                this.submitBtn = this.modal.find('button[type="submit"]');
 
-            eventHub.$on('open-delete-media-modal', data => {
-                me.modal = $('div#deleteFolderModal');
-
-                me.submitBtn = me.modal.find('button[type="submit"]');
-
-                me.modal.modal({
-                    backdrop: 'static',
-                    keyboard: false
-                });
+                this.modal.modal({backdrop: 'static', keyboard: false});
             });
+        },
+
+        mounted() {
+            //
         },
 
         methods: {
             deleteFolder(e) {
+                this.disableSubmitButton();
+
+                axios.post(config.endpoint+'/delete', {media: this.media})
+                     .then(response => {
+                         if (response.data.status == 'success') {
+                             this.modal.modal('hide');
+                             this.resetSubmitButton();
+                             eventHub.$emit(events.MEDIA_MODAL_CLOSED, true);
+                         }
+                         else {
+                             // Throw an error
+                         }
+                     })
+                     .catch(error => {
+                         this.resetSubmitButton();
+                         this.errors = error.response.data.errors;
+                     });
+            },
+
+            disableSubmitButton() {
                 this.submitBtn.button('loading');
+            },
 
-                axios.post(config.endpoint+'/delete', {
-                        media: this.media
-                    })
-                    .then(response => {
-                        this.$parent.refreshDirectory();
-
-                        this.modal.modal('hide');
-
-                        this.$parent.mediaModalClosed();
-
-                        this.newDirectory = '';
-
-                        this.submitBtn.button('reset');
-                    })
-                    .catch(error => {
-                        this.submitBtn.button('reset');
-
-                        this.errors = error.response.data.errors;
-                    });
+            resetSubmitButton() {
+                this.submitBtn.button('reset');
             }
         }
     }
