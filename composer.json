@@ -18,7 +18,7 @@
     "require": {
         "php":                ">=5.6.4",
         "arcanesoft/auth":    "~2.0",
-        "arcanesoft/core":    "~1.5",
+        "arcanesoft/core":    "~2.0",
         "intervention/image": "~2.3"
     },
     "require-dev": {
