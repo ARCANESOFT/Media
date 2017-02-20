@@ -12,6 +12,17 @@ use Arcanesoft\Media\Http\Routes;
 class RouteServiceProvider extends ServiceProvider
 {
     /* -----------------------------------------------------------------
+     |  Properties
+     | -----------------------------------------------------------------
+     */
+    /**
+     * The admin controller namespace for the application.
+     *
+     * @var string
+     */
+    protected $adminNamespace = 'Arcanesoft\\Media\\Http\\Controllers\\Admin';
+
+    /* -----------------------------------------------------------------
      |  Main Methods
      | -----------------------------------------------------------------
      */
@@ -20,7 +31,9 @@ class RouteServiceProvider extends ServiceProvider
      */
     public function map()
     {
-        $this->mapAdminRoutes();
+        $this->adminGroup(function () {
+            $this->mapAdminRoutes();
+        });
     }
 
     /**
@@ -28,15 +41,11 @@ class RouteServiceProvider extends ServiceProvider
      */
     protected function mapAdminRoutes()
     {
-        $attributes = $this->getAdminAttributes(
-            'media.',
-            'Arcanesoft\\Media\\Http\\Controllers\\Admin',
-            $this->config()->get('arcanesoft.media.route.prefix', 'media')
-        );
-
-        $this->group($attributes, function () {
-            Routes\Admin\MediaRoutes::register();
-            Routes\Admin\ApiRoutes::register(); // TODO: Adding `api` or `ajax` middleware ?
-        });
+        $this->name('media.')
+             ->prefix($this->config()->get('arcanesoft.media.route.prefix', 'media'))
+             ->group(function () {
+                 Routes\Admin\MediaRoutes::register();
+                 Routes\Admin\ApiRoutes::register(); // TODO: Adding `api` or `ajax` middleware ?
+             });
     }
 }

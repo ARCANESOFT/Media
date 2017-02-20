@@ -22,20 +22,6 @@ class MediaServiceProvider extends PackageServiceProvider
     protected $package = 'media';
 
     /* -----------------------------------------------------------------
-     |  Getters & Setters
-     | -----------------------------------------------------------------
-     */
-    /**
-     * Get the base path of the package.
-     *
-     * @return string
-     */
-    public function getBasePath()
-    {
-        return dirname(__DIR__);
-    }
-
-    /* -----------------------------------------------------------------
      |  Main Functions
      | -----------------------------------------------------------------
      */
@@ -115,7 +101,7 @@ class MediaServiceProvider extends PackageServiceProvider
     private function publishAssets()
     {
         $this->publishes([
-            $this->getBasePath() . '/resources/assets/js' => resource_path("assets/back/js/components/{$this->vendor}/{$this->package}"),
+            $this->getResourcesPath().DS.'assets'.DS.'js' => resource_path("assets/back/js/components/{$this->vendor}/{$this->package}"),
         ], 'assets-js');
     }
 }
