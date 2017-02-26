@@ -32,6 +32,12 @@ class ApiRoutes extends RouteRegistrar
             $this->post('delete', 'MediasController@deleteMedia')
                  ->name('delete'); // admin::media.api.delete
 
+            $this->get('move-locations', 'MediasController@moveLocations')
+                 ->name('move-locations'); // admin::media.api.move-locations
+
+            $this->put('move', 'MediasController@moveMedia')
+                 ->name('move'); // admin::media.api.move
+
             $this->post('create', 'MediasController@createDirectory')
                  ->name('create'); // admin::media.api.create
         });

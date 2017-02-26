@@ -159,10 +159,20 @@ class MediasController extends Controller
 
         switch ($data['media']['type']) {
             case Media::MEDIA_TYPE_FILE:
-                return $this->moveFile($location, $from, $data);
+                $to = $this->moveFile($location, $from, $data);
+
+                return response()->json([
+                    'status' => 'success',
+                    'data'   => ['path' => $to],
+                ]);
 
             case Media::MEDIA_TYPE_DIRECTORY:
-                return $this->moveDirectory($location, $from, $data);
+                $to = $this->moveDirectory($location, $from, $data);
+
+                return response()->json([
+                    'status' => 'success',
+                    'data'   => ['path' => $to],
+                ]);
 
             default:
                 return response()->json([
@@ -191,6 +201,49 @@ class MediasController extends Controller
         return response()->json(['status' => $deleted ? 'success' : 'error']);
     }
 
+    public function moveLocations(Request $request)
+    {
+        $location  = $request->get('location');
+        $name      = $request->get('name');
+        $isHome    = $location == '/';
+        $selected  = $isHome ? $name : $location.'/'.$name;
+
+        /** @var \Illuminate\Support\Collection $destinations */
+        $destinations = $this->media->directories($location)
+            ->transform(function ($directory) {
+                return $directory['path'];
+            })
+            ->reject(function ($path) use ($selected) {
+                return $path === $selected;
+            });
+
+        if ( ! $isHome) {
+            $destinations->prepend('..');
+        }
+
+        return response()->json([
+            'status' => 'success',
+            'data'   => $destinations,
+        ]);
+    }
+
+    public function moveMedia(Request $request)
+    {
+        $moved = $this->media->move(
+            $request->get('old-path'),
+            $request->get('new-path')
+        );
+
+        if ($moved) {
+            return response()->json([
+                'status' => 'success',
+            ]);
+        }
+        else {
+            // Return an error response
+        }
+    }
+
     /* -----------------------------------------------------------------
      |  Other Methods
      | -----------------------------------------------------------------
@@ -202,10 +255,7 @@ class MediasController extends Controller
 
         $this->media->move($from, $to);
 
-        return response()->json([
-            'status' => 'success',
-            'data'   => ['path' => $to],
-        ]);
+        return $to;
     }
 
     private function moveDirectory($location, $from, array $data)
@@ -214,9 +264,6 @@ class MediasController extends Controller
 
         $this->media->move($from, $to);
 
-        return response()->json([
-            'status' => 'success',
-            'data'   => ['path' => $to],
-        ]);
+        return $to;
     }
 }
