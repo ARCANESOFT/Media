@@ -10,5 +10,17 @@ use Arcanedev\Support\ServiceProvider;
  */
 class PackagesServiceProvider extends ServiceProvider
 {
-    //
+    /* -----------------------------------------------------------------
+     |  Main Methods
+     | -----------------------------------------------------------------
+     */
+    /**
+     * Register the service provider.
+     */
+    public function register()
+    {
+        parent::register();
+
+        $this->registerProvider(\Arcanedev\LaravelApiHelper\ApiHelperServiceProvider::class);
+    }
 }

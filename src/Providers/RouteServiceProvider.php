@@ -32,7 +32,9 @@ class RouteServiceProvider extends ServiceProvider
     public function map()
     {
         $this->adminGroup(function () {
-            $this->mapAdminRoutes();
+            $this->name('media.')->group(function () {
+                $this->mapAdminRoutes();
+            });
         });
     }
 
@@ -41,11 +43,14 @@ class RouteServiceProvider extends ServiceProvider
      */
     protected function mapAdminRoutes()
     {
-        $this->name('media.')
-             ->prefix($this->config()->get('arcanesoft.media.route.prefix', 'media'))
-             ->group(function () {
-                 Routes\Admin\MediaRoutes::register();
-                 Routes\Admin\ApiRoutes::register(); // TODO: Adding `api` or `ajax` middleware ?
-             });
+        $prefix = $this->config()->get('arcanesoft.media.route.prefix', 'media');
+
+        $this->prefix($prefix)->group(function () {
+            Routes\Admin\MediaRoutes::register();
+        });
+
+        $this->prefix("api/{$prefix}")->middleware('ajax')->group(function () {
+            Routes\Admin\ApiRoutes::register();
+        });
     }
 }
