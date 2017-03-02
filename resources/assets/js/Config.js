@@ -1,5 +1,5 @@
 const config = {
-    endpoint: '/dashboard/media/api',
+    endpoint: '/dashboard/api/media',
 
     supportedImages: [
         'image/gif',
