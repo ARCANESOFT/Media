@@ -14,6 +14,7 @@ class MediaServiceProvider extends PackageServiceProvider
      |  Properties
      | -----------------------------------------------------------------
      */
+
     /**
      * Package name.
      *
@@ -25,6 +26,7 @@ class MediaServiceProvider extends PackageServiceProvider
      |  Main Functions
      | -----------------------------------------------------------------
      */
+
     /**
      * Register the service provider.
      */
@@ -77,6 +79,7 @@ class MediaServiceProvider extends PackageServiceProvider
      |  Other Methods
      | -----------------------------------------------------------------
      */
+
     /**
      * Sync the filesystem config.
      */
@@ -98,10 +101,10 @@ class MediaServiceProvider extends PackageServiceProvider
     /**
      * Publish the assets.
      */
-    private function publishAssets()
+    protected function publishAssets()
     {
         $this->publishes([
-            $this->getResourcesPath().DS.'assets'.DS.'js' => resource_path("assets/back/js/components/{$this->vendor}/{$this->package}"),
-        ], 'assets-js');
+            $this->getResourcesPath().DS.'assets'.DS => resource_path("assets/_{$this->vendor}/{$this->package}"),
+        ], 'assets');
     }
 }
