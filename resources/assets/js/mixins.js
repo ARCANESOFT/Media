@@ -1,8 +1,9 @@
+import FormErrors from 'laravel-form-errors';
 import Lang from 'laravel-lang-js';
 import translations from './translations';
 
 const translator = {
-    data () {
+    data() {
         return {
             lang: null,
         }
@@ -16,4 +17,12 @@ const translator = {
     }
 };
 
-export { translator };
+const errors = {
+    data() {
+        return {
+            errors: new FormErrors
+        }
+    }
+};
+
+export { translator, errors };

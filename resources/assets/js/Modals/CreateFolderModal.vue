@@ -2,32 +2,33 @@
     import config from './../config';
     import events from './../events';
     import FormErrors from 'laravel-form-errors';
-    import { translator } from './../mixins';
+    import MediaErrors from './../Components/MediaErrors.vue';
+    import { translator, errors } from './../mixins';
 
     export default {
         name: 'create-folder-modal',
 
         props: ['location'],
 
-        mixins: [translator],
+        mixins: [
+            translator,
+            errors
+        ],
+
+        components: {
+            MediaErrors
+        },
 
         data () {
             return {
                 newDirectory: '',
                 modal: null,
-                submitBtn: null,
-                errors: null
+                submitBtn: null
             }
         },
 
-        components: {
-            'media-errors': require('../Components/MediaErrors.vue')
-        },
-
         created() {
-            this.errors = new FormErrors;
-
-            window.eventHub.$on(events.MEDIA_MODAL_NEW_FOLDER_OPEN, data => {
+            window.eventHub.$on(events.MEDIA_MODAL_NEW_FOLDER_OPEN, (data) => {
                 this.modal     = $('div#newFolderModal');
                 this.submitBtn = this.modal.find('button[type="submit"]');
 
@@ -48,23 +49,24 @@
             createFolder(e) {
                 this.disableSubmitBtn();
                 this.errors.reset();
+
                 let formData = {
                     name: this.newDirectory,
                     location: this.location
                 };
 
                 window.axios.post(`${config.endpoint}/create`, formData)
-                     .then((response) => {
-                         this.modal.modal('hide');
-                         this.newDirectory = '';
+                    .then((response) => {
+                        this.modal.modal('hide');
+                        this.newDirectory = '';
 
-                         window.eventHub.$emit(events.MEDIA_MODAL_CLOSED, true);
-                     })
-                     .catch(error => {
-                         this.resetSubmitBtn();
+                        window.eventHub.$emit(events.MEDIA_MODAL_CLOSED, true);
+                    })
+                    .catch((error) => {
+                        this.resetSubmitBtn();
 
-                         this.errors.setMessages(error.response.data.errors);
-                     });
+                        this.errors.setMessages(error.response.data.errors);
+                    });
             },
 
             disableSubmitBtn() {

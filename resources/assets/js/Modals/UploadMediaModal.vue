@@ -1,9 +1,8 @@
 <script>
     import config from './../config';
     import events from './../events';
-    import Dropzone from 'dropzone';
-    import FormErrors from 'laravel-form-errors';
     import { translator } from './../mixins';
+    import Dropzone from 'dropzone';
 
     Dropzone.autoDiscover = false;
 
@@ -36,9 +35,8 @@
                 that.modal.modal('show');
 
                 that.modal.on('hidden.bs.modal', (e) => {
-                    if (that.dropzone) {
+                    if (that.dropzone)
                         that.dropzone.removeAllFiles();
-                    }
                 });
             });
         },
@@ -55,7 +53,7 @@
                     maxFiles: 100,
                     paramName: 'medias',
                     headers: {
-                        'X-CSRF-TOKEN': App.csrfToken
+                        'X-CSRF-TOKEN': window.App.csrfToken
                     },
                     dictDefaultMessage: this.lang.get('dropzone.default_message'),
                     sendingmultiple(file, xhr, formData) {

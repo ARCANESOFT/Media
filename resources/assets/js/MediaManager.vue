@@ -4,10 +4,28 @@
     import MediaCollection from './Entities/MediaCollection';
     import {translator} from './mixins';
 
+    import MediaBreadcrumbs from './Components/MediaBreadcrumbs.vue';
+    import MediaItemDetails from './Components/MediaItemDetails.vue';
+    import CreateFolderModal from './Modals/CreateFolderModal.vue';
+    import UploadMediaModal from './Modals/UploadMediaModal.vue';
+    import MoveMediaModal from './Modals/MoveMediaModal.vue';
+    import RenameMediaModal from './Modals/RenameMediaModal.vue';
+    import DeleteMediaModal from './Modals/DeleteMediaModal.vue';
+
     export default {
         name: 'media-manager',
 
         mixins: [translator],
+
+        components: {
+            MediaBreadcrumbs,
+            MediaItemDetails,
+            CreateFolderModal,
+            UploadMediaModal,
+            MoveMediaModal,
+            RenameMediaModal,
+            DeleteMediaModal
+        },
 
         props: {
             locale: {
@@ -31,17 +49,6 @@
                 showDetails: false,
                 fullScreen: false
             }
-        },
-
-        components: {
-            'media-breadcrumbs': require('./Components/MediaBreadcrumbs.vue'),
-            'media-item-details': require('./Components/MediaItemDetails.vue'),
-
-            'create-folder-modal': require('./Modals/CreateFolderModal.vue'),
-            'upload-media-modal': require('./Modals/UploadMediaModal.vue'),
-            'move-media-modal': require('./Modals/MoveMediaModal.vue'),
-            'rename-media-modal': require('./Modals/RenameMediaModal.vue'),
-            'delete-media-modal': require('./Modals/DeleteMediaModal.vue')
         },
 
         created() {

@@ -3,11 +3,16 @@
     import events from './events';
     import { coerce } from './utilities';
     import { translator } from './mixins';
+    import BrowseMediaModal from './Modals/BrowseMediaModal.vue';
 
     export default {
         name: 'media-browser',
 
         mixins: [translator],
+
+        components: {
+            BrowseMediaModal
+        },
 
         props: {
             name: {
@@ -51,10 +56,6 @@
             return {
                 url: ''
             }
-        },
-
-        components: {
-            'browse-media-modal':   require('./Modals/BrowseMediaModal.vue')
         },
 
         mounted() {

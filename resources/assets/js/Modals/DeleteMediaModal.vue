@@ -12,15 +12,13 @@
 
         data() {
             return {
-                modal: null,
-                submitBtn: null
+                modal: null
             }
         },
 
         created() {
-            window.eventHub.$on(events.MEDIA_MODAL_DELETE_OPEN, data => {
+            window.eventHub.$on(events.MEDIA_MODAL_DELETE_OPEN, (data) => {
                 this.modal     = $('div#deleteFolderModal');
-                this.submitBtn = this.modal.find('button[type="submit"]');
 
                 this.modal.modal({
                     backdrop: 'static',
@@ -31,31 +29,24 @@
 
         methods: {
             deleteFolder(e) {
-                this.disableSubmitButton();
+                let submitBtn = this.modal.find('button[type="submit"]');
+                    submitBtn.button('loading');
 
-                axios.post(`${config.endpoint}/delete`, {media: this.media})
-                    .then(response => {
+                window.axios.post(`${config.endpoint}/delete`, { media: this.media })
+                    .then((response) => {
                         if (response.data.status === 'success') {
                             this.modal.modal('hide');
-                            this.resetSubmitButton();
                             window.eventHub.$emit(events.MEDIA_MODAL_CLOSED, true);
                         }
                         else {
                             // Throw an error
                         }
+                        submitBtn.button('reset');
                     })
                     .catch(error => {
-                        this.resetSubmitButton();
+                        submitBtn.button('reset');
                         this.errors = error.response.data.errors;
                     });
-            },
-
-            disableSubmitButton() {
-                this.submitBtn.button('loading');
-            },
-
-            resetSubmitButton() {
-                this.submitBtn.button('reset');
             }
         }
     }

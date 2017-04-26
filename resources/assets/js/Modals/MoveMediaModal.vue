@@ -15,15 +15,13 @@
                 loading: false,
                 destinations: [],
                 selected: null,
-                modal: null,
-                submitBtn: null
+                modal: null
             }
         },
 
         created() {
-            window.eventHub.$on(events.MEDIA_MODAL_MOVE_OPEN, data => {
-                this.modal     = $('div#move-media-modal');
-                this.submitBtn = this.modal.find('button[type="submit"]');
+            window.eventHub.$on(events.MEDIA_MODAL_MOVE_OPEN, (data) => {
+                this.modal = $('div#move-media-modal');
 
                 this.modal.modal({
                     backdrop: 'static',
@@ -58,7 +56,8 @@
 
         methods: {
             moveMedia() {
-                this.disableSubmitButton();
+                let submitBtn = this.modal.find('button[type="submit"]');
+                submitBtn.button('loading');
 
                 let formData = {
                     'old-path': this.media.path,
@@ -66,24 +65,25 @@
                 };
 
                 window.axios.put(`${config.endpoint}/move`, formData)
-                     .then(response => {
-                         if (response.data.status === 'success') {
+                    .then((response) => {
+                        if (response.data.status === 'success') {
                             this.modal.modal('hide');
-                            this.resetSubmitButton();
                             window.eventHub.$emit(events.MEDIA_MODAL_CLOSED, true);
                         }
                         else {
                             // Throw an error
                         }
-                     })
-                     .catch(error => {
-                         this.resetSubmitButton();
-                     });
+                    })
+                    .catch((error) => {
+                        submitBtn.button('reset');
+                    });
             },
 
             getDestinations() {
                 this.loading = true;
-                this.disableSubmitButton();
+
+                let submitBtn = this.modal.find('button[type="submit"]');
+                submitBtn.button('loading');
 
                 let formData = {
                     params: {
@@ -93,27 +93,19 @@
                 };
 
                 window.axios.get(`${config.endpoint}/move-locations`, formData)
-                     .then((response) => {
-                            if (response.data.status === 'success') {
-                                this.destinations = response.data.data;
-                                this.loading = false;
-                                this.resetSubmitButton();
-                            }
-                            else {
-                                // Throw an error
-                            }
-                     })
-                     .catch(error => {
-                         this.resetSubmitButton();
-                     });
-            },
-
-            disableSubmitButton() {
-                this.submitBtn.button('loading');
-            },
-
-            resetSubmitButton() {
-                this.submitBtn.button('reset');
+                    .then((response) => {
+                        if (response.data.status === 'success') {
+                            this.destinations = response.data.data;
+                            this.loading = false;
+                            submitBtn.button('reset');
+                        }
+                        else {
+                            // Throw an error
+                        }
+                    })
+                    .catch((error) => {
+                        submitBtn.button('reset');
+                    });
             }
         }
     }
