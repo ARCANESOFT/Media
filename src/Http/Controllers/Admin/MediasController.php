@@ -220,7 +220,8 @@ class MediasController extends Controller
             })
             ->reject(function ($path) use ($selected) {
                 return $path === $selected;
-            });
+            })
+            ->values();
 
         if ( ! $isHome) {
             $destinations->prepend('..');
