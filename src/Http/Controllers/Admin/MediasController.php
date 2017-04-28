@@ -9,6 +9,8 @@ use Illuminate\Support\Str;
  *
  * @package  Arcanesoft\Media\Http\Controllers\Admin
  * @author   ARCANEDEV <arcanedev.maroc@gmail.com>
+ *
+ * @TODO: Extract all the validators to FormRequest
  */
 class MediasController extends Controller
 {
@@ -16,6 +18,7 @@ class MediasController extends Controller
      |  Properties
      | -----------------------------------------------------------------
      */
+
     /**
      * The media instance.
      *
@@ -27,6 +30,7 @@ class MediasController extends Controller
      |  Constructor
      | -----------------------------------------------------------------
      */
+
     /**
      * MediasController constructor.
      *
@@ -45,6 +49,7 @@ class MediasController extends Controller
      |  Main Methods
      | -----------------------------------------------------------------
      */
+
     /**
      * Show the media manager page.
      *
@@ -84,7 +89,7 @@ class MediasController extends Controller
     public function uploadMedia(Request $request)
     {
         $validator = validator($request->all(), [
-            'location' => 'required',
+            'location' => 'required|string',
             'medias'   => 'required|array',
             'medias.*' => 'required|file'
         ]);
@@ -114,8 +119,8 @@ class MediasController extends Controller
     {
         $data      = $request->all();
         $validator = validator($data, [
-            'name'     => 'required', // TODO: check if the folder does not exists
-            'location' => 'required',
+            'name'     => 'required|string', // TODO: check if the folder does not exists
+            'location' => 'required|string',
         ]);
 
         if ($validator->fails()) {
@@ -142,8 +147,8 @@ class MediasController extends Controller
         // TODO: check if the folder does not exists
         $validator = validator($data, [
             'media'    => 'required|array',
-            'newName'  => 'required',
-            'location' => 'required',
+            'newName'  => 'required|string',
+            'location' => 'required|string',
         ]);
 
         if ($validator->fails()) {
@@ -215,7 +220,8 @@ class MediasController extends Controller
             })
             ->reject(function ($path) use ($selected) {
                 return $path === $selected;
-            });
+            })
+            ->values();
 
         if ( ! $isHome) {
             $destinations->prepend('..');
@@ -229,19 +235,27 @@ class MediasController extends Controller
 
     public function moveMedia(Request $request)
     {
-        $moved = $this->media->move(
-            $request->get('old-path'),
-            $request->get('new-path')
-        );
+        $validator = validator($data = $request->all(), [
+            'old-path' => 'required|string',
+            'new-path' => 'required|string',
+        ]);
+
+        if ($validator->fails()) {
+            return response()->json([
+                'status' => 'error',
+                'errors' => $validator->messages(),
+            ], 400);
+        }
+
+        $moved = $this->media->move($data['old-path'], $data['new-path']);
 
         if ($moved) {
             return response()->json([
                 'status' => 'success',
             ]);
         }
-        else {
-            // Return an error response
-        }
+
+        return $this->jsonResponseError('Something wrong happened !', 500);
     }
 
     /* -----------------------------------------------------------------

@@ -1,20 +1,47 @@
 <script>
-    import config from './Config';
-    import events from './Events';
+    import config from './config';
+    import events from './events';
     import MediaCollection from './Entities/MediaCollection';
+    import {translator} from './mixins';
+
+    import MediaBreadcrumbs from './Components/MediaBreadcrumbs.vue';
+    import MediaItemDetails from './Components/MediaItemDetails.vue';
+    import CreateFolderModal from './Modals/CreateFolderModal.vue';
+    import UploadMediaModal from './Modals/UploadMediaModal.vue';
+    import MoveMediaModal from './Modals/MoveMediaModal.vue';
+    import RenameMediaModal from './Modals/RenameMediaModal.vue';
+    import DeleteMediaModal from './Modals/DeleteMediaModal.vue';
 
     export default {
+        name: 'media-manager',
+
+        mixins: [translator],
+
+        components: {
+            MediaBreadcrumbs,
+            MediaItemDetails,
+            CreateFolderModal,
+            UploadMediaModal,
+            MoveMediaModal,
+            RenameMediaModal,
+            DeleteMediaModal
+        },
+
         props: {
+            locale: {
+                type: String,
+                'default': 'fr'
+            },
             readonly: {
                 type: Boolean,
-                default: false
+                'default': false
             }
         },
 
         data () {
             return {
                 currentUri: '/',
-                medias: new MediaCollection(),
+                medias: new MediaCollection,
                 loading: false,
                 newDirectory: '',
                 selected: null,
@@ -24,38 +51,27 @@
             }
         },
 
-        components: {
-            'media-breadcrumbs': require('./Components/MediaBreadcrumbs.vue'),
-            'media-item-details': require('./Components/MediaItemDetails.vue'),
-
-            'create-folder-modal': require('./Components/Modals/CreateFolderModal.vue'),
-            'upload-media-modal': require('./Components/Modals/UploadMediaModal.vue'),
-            'move-media-modal': require('./Components/Modals/MoveMediaModal.vue'),
-            'rename-media-modal': require('./Components/Modals/RenameMediaModal.vue'),
-            'delete-media-modal': require('./Components/Modals/DeleteMediaModal.vue')
-        },
-
         created() {
             this.listenToKeyboard();
 
-            eventHub.$on(events.MEDIA_MODAL_CLOSED, (refresh) => {
+            window.eventHub.$on(events.MEDIA_MODAL_CLOSED, (refresh) => {
                 if (refresh) this.refreshDirectory();
 
                 this.closeModal();
             });
 
-            eventHub.$on(events.ITEM_DETAILS_CLOSED, () => {
+            window.eventHub.$on(events.ITEM_DETAILS_CLOSED, () => {
                 this.closeMediaDetails();
             });
 
-            eventHub.$on(events.MEDIA_LOCATION_HOME, () => {
+            window.eventHub.$on(events.MEDIA_LOCATION_HOME, () => {
                 this.getHomeDirectory();
             });
 
-            eventHub.$on(events.MEDIA_LOCATION_CHANGED, (location, uri) => {
+            window.eventHub.$on(events.MEDIA_LOCATION_CHANGED, (location, uri) => {
                 this.currentUri = uri;
 
-                (location == '') ? this.getHomeDirectory() : this.getDirectories(location);
+                (location === '') ? this.getHomeDirectory() : this.getDirectories(location);
             });
         },
 
@@ -65,7 +81,7 @@
 
         computed: {
             selectedUri() {
-                return this.currentUri + (this.selected == null ? '' : this.selected.name);
+                return this.currentUri + (this.selected === null ? '' : this.selected.name);
             },
 
             mediasCount() {
@@ -75,7 +91,6 @@
             isNotReadonly() {
                 return ! this.readonly;
             }
-
         },
 
         methods: {
@@ -85,10 +100,14 @@
                 this.resetSelected();
                 this.closeMediaDetails();
 
-                axios.get(config.endpoint+'/all').then((response) => {
-                    this.medias.load(response.data.data);
-                    this.loading = false;
-                });
+                window.axios.get(`${config.endpoint}/all`)
+                    .then((response) => {
+                        this.medias.load(response.data.data);
+                        this.loading = false;
+                    })
+                    .catch((error) => {
+                        console.log(error);
+                    });
             },
 
             getDirectories(location) {
@@ -96,15 +115,18 @@
                 this.resetSelected();
                 this.closeMediaDetails();
 
-                axios.get(config.endpoint+'/all', {params: {location}})
-                     .then(response => {
-                         this.medias.load(response.data.data);
-                         this.loading = false;
-                     });
+                window.axios.get(`${config.endpoint}/all`, {params: {location}})
+                    .then(response => {
+                        this.medias.load(response.data.data);
+                        this.loading = false;
+                    })
+                    .catch((error) => {
+                        console.log(error);
+                    });
             },
 
             resetBreadcrumbs() {
-                eventHub.$emit(events.MEDIA_LOCATION_CLEARED);
+                window.eventHub.$emit(events.MEDIA_LOCATION_CLEARED);
             },
 
             /**
@@ -114,7 +136,7 @@
              */
             openMedia(media) {
                 if (media.isDirectory()) {
-                    eventHub.$emit(events.MEDIA_DIRECTORY_OPENED, media.name);
+                    window.eventHub.$emit(events.MEDIA_DIRECTORY_OPENED, media.name);
                 }
                 else if (media.isFile()) {
                     this.openMediaDetails(media);
@@ -135,7 +157,7 @@
             },
 
             hasSelectedMedia() {
-                return this.selected != null;
+                return this.selected !== null;
             },
 
             selectMedia(media) {
@@ -151,11 +173,11 @@
             setSelected(selected) {
                 this.selected = selected;
 
-                eventHub.$emit(events.MEDIA_ITEM_SELECTED, selected);
+                window.eventHub.$emit(events.MEDIA_ITEM_SELECTED, selected);
             },
 
             isSelected(media) {
-                return media == this.selected;
+                return media === this.selected;
             },
 
             selectNextMedia() {
@@ -207,8 +229,8 @@
                 this.openModal(events.MEDIA_MODAL_DELETE_OPEN);
             },
 
-            openModal(modalEvent) {
-                eventHub.$emit(modalEvent);
+            openModal(modalEvent, data = {}) {
+                window.eventHub.$emit(modalEvent, data);
                 this.modalOpened = true;
             },
 
@@ -277,35 +299,39 @@
                 <div class="media-toolbar-buttons btn-toolbar" role="toolbar">
                     <div class="btn-group" role="group" v-if="isNotReadonly">
                         <button type="button" class="btn btn-success" @click="openUploadMediaModal">
-                            <i class="fa fa-fw fa-cloud-upload"></i> <span class="hidden-xs">Upload</span>
+                            <i class="fa fa-fw fa-cloud-upload"></i> <span class="hidden-xs">{{ lang.get('actions.upload') }}</span>
                         </button>
                         <button type="button" class="btn btn-primary" @click="openNewFolderModal">
-                            <i class="fa fa-fw fa-folder"></i> <span class="hidden-xs">Add Folder</span>
+                            <i class="fa fa-fw fa-folder"></i> <span class="hidden-xs">{{ lang.get('actions.add_folder') }}</span>
                         </button>
                     </div>
                     <div class="btn-group" role="group">
-                        <button type="button" class="btn btn-default" @click="getHomeDirectory">
+                        <button @click="getHomeDirectory" type="button" class="btn btn-default"
+                                data-toggle="tooltip" :data-original-title="lang.get('actions.home')">
                             <i class="fa fa-fw fa-home"></i>
                         </button>
-                        <button type="button" class="btn btn-default" @click="refreshDirectory">
+                        <button @click="refreshDirectory" type="button" class="btn btn-default"
+                                data-toggle="tooltip" :data-original-title="lang.get('actions.refresh')">
                             <i class="fa fa-fw fa-refresh"></i>
                         </button>
                     </div>
                     <transition name="fade">
                         <div class="btn-group" role="group" v-if="isEditable()">
                             <button type="button" class="btn btn-info" @click="openMoveMediaModal">
-                                <i class="fa fa-fw fa-arrow-circle-right"></i> <span class="hidden-xs">Move</span>
+                                <i class="fa fa-fw fa-arrow-circle-right"></i> <span class="hidden-xs">{{ lang.get('actions.move') }}</span>
                             </button>
                             <button type="button" class="btn btn-warning" @click="openRenameMediaModal">
-                                <i class="fa fa-fw fa-pencil"></i> <span class="hidden-xs">Rename</span>
+                                <i class="fa fa-fw fa-pencil"></i> <span class="hidden-xs">{{ lang.get('actions.rename') }}</span>
                             </button>
                             <button type="button" class="btn btn-danger" @click="openDeleteMediaModal">
-                                <i class="fa fa-fw fa-trash-o"></i> <span class="hidden-xs">Delete</span>
+                                <i class="fa fa-fw fa-trash-o"></i> <span class="hidden-xs">{{ lang.get('actions.delete') }}</span>
                             </button>
                         </div>
                     </transition>
                     <div class="btn-group pull-right" role="group" v-if="isNotReadonly">
-                        <button type="button" class="btn btn-default" @click="toggleFullScreen">
+                        <button @click="toggleFullScreen" type="button" class="btn btn-default"
+                                data-toggle="tooltip" data-placement="left"
+                                :data-original-title="lang.get(fullScreen ? 'actions.minimize' : 'actions.maximize')">
                             <i class="fa fa-fw" :class="[fullScreen ? 'fa-compress' : 'fa-expand']"></i>
                         </button>
                     </div>
@@ -339,7 +365,7 @@
             <transition name="fade">
                 <div class="media-loader" v-show="loading">
                     <i class="fa fa-circle-o-notch fa-spin fa-3x fa-fw"></i>
-                    <p>LOADING...</p>
+                    <p>{{ lang.get('messages.loading') }}</p>
                 </div>
             </transition>
         </div>
