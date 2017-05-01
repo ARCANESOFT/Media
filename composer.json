@@ -16,10 +16,9 @@
     "type":    "library",
     "license": "MIT",
     "require": {
-        "php":                          ">=5.6.4",
-        "arcanedev/laravel-api-helper": "~1.0",
-        "arcanesoft/auth":              "~2.0",
-        "arcanesoft/core":              "~2.0"
+        "php":             ">=5.6.4",
+        "arcanesoft/auth": "~2.2",
+        "arcanesoft/core": "~2.4"
     },
     "require-dev": {
         "phpunit/phpcov":  "~3.0",
