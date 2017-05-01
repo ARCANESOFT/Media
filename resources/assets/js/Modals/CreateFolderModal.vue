@@ -65,7 +65,7 @@
                     .catch((error) => {
                         this.resetSubmitBtn();
 
-                        this.errors.setMessages(error.response.data.errors);
+                        this.errors.setMessages(error.response.data.messages);
                     });
             },
 

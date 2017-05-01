@@ -34,7 +34,7 @@
 
                 window.axios.post(`${config.endpoint}/delete`, { media: this.media })
                     .then((response) => {
-                        if (response.data.status === 'success') {
+                        if (response.data.code === 'success') {
                             this.modal.modal('hide');
                             window.eventHub.$emit(events.MEDIA_MODAL_CLOSED, true);
                         }
@@ -43,9 +43,9 @@
                         }
                         submitBtn.button('reset');
                     })
-                    .catch(error => {
+                    .catch((error) => {
                         submitBtn.button('reset');
-                        this.errors = error.response.data.errors;
+                        console.log(error);
                     });
             }
         }

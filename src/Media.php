@@ -16,9 +16,17 @@ use Illuminate\Support\Str;
 class Media implements MediaContract
 {
     /* -----------------------------------------------------------------
+     |  Constants
+     | -----------------------------------------------------------------
+     */
+
+    const VERSION = '2.1.0';
+
+    /* -----------------------------------------------------------------
      |  Properties
      | -----------------------------------------------------------------
      */
+
     /**
      * The application instance.
      *
@@ -30,6 +38,7 @@ class Media implements MediaContract
      |  Constructor
      | -----------------------------------------------------------------
      */
+
     /**
      * Media constructor.
      *
@@ -44,6 +53,7 @@ class Media implements MediaContract
      |  Getters & Setters
      | -----------------------------------------------------------------
      */
+
     /**
      * Get the Filesystem Manager instance.
      *
@@ -100,6 +110,7 @@ class Media implements MediaContract
      |  Main Methods
      | -----------------------------------------------------------------
      */
+
     /**
      * Get a filesystem adapter.
      *
@@ -249,6 +260,7 @@ class Media implements MediaContract
      |  Check Methods
      | -----------------------------------------------------------------
      */
+
     /**
      * Determine if a file/directory exists.
      *
@@ -281,6 +293,7 @@ class Media implements MediaContract
      |  Other Methods
      | -----------------------------------------------------------------
      */
+
     /**
      * Check the given directory location.
      *

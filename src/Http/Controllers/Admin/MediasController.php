@@ -1,6 +1,8 @@
 <?php namespace Arcanesoft\Media\Http\Controllers\Admin;
 
+use Arcanedev\LaravelApiHelper\Traits\JsonResponses;
 use Arcanesoft\Media\Contracts\Media;
+use Arcanesoft\Media\Policies\MediasPolicy;
 use Illuminate\Http\Request;
 use Illuminate\Support\Str;
 
@@ -14,6 +16,13 @@ use Illuminate\Support\Str;
  */
 class MediasController extends Controller
 {
+    /* -----------------------------------------------------------------
+     |  Traits
+     | -----------------------------------------------------------------
+     */
+
+    use JsonResponses;
+
     /* -----------------------------------------------------------------
      |  Properties
      | -----------------------------------------------------------------
@@ -57,6 +66,8 @@ class MediasController extends Controller
      */
     public function index()
     {
+        $this->authorize(MediasPolicy::PERMISSION_LIST);
+
         $this->setTitle('Media');
 
         return $this->view('admin.manager');
@@ -71,11 +82,12 @@ class MediasController extends Controller
      */
     public function getAll(Request $request)
     {
+        $this->authorize(MediasPolicy::PERMISSION_LIST);
+
         $location = $request->get('location', '/');
 
-        return response()->json([
-            'status' => 'success',
-            'data'   => $this->media->all($location),
+        return $this->jsonResponseSuccess([
+            'medias' => $this->media->all($location),
         ]);
     }
 
@@ -88,6 +100,8 @@ class MediasController extends Controller
      */
     public function uploadMedia(Request $request)
     {
+        $this->authorize(MediasPolicy::PERMISSION_CREATE);
+
         $validator = validator($request->all(), [
             'location' => 'required|string',
             'medias'   => 'required|array',
@@ -95,17 +109,16 @@ class MediasController extends Controller
         ]);
 
         if ($validator->fails()) {
-            return response()->json([
-                'status' => 'error',
-                'errors' => $validator->messages(),
-            ]);
+            return $this->jsonResponseError([
+                'messages' => $validator->messages(),
+            ], 422);
         }
 
         $this->media->storeMany(
             $request->get('location'), $request->file('medias')
         );
 
-        return response()->json(['status' => 'success']);
+        return $this->jsonResponseSuccess();
     }
 
     /**
@@ -117,6 +130,8 @@ class MediasController extends Controller
      */
     public function createDirectory(Request $request)
     {
+        $this->authorize(MediasPolicy::PERMISSION_CREATE);
+
         $data      = $request->all();
         $validator = validator($data, [
             'name'     => 'required|string', // TODO: check if the folder does not exists
@@ -124,24 +139,22 @@ class MediasController extends Controller
         ]);
 
         if ($validator->fails()) {
-            return response()->json([
-                'status' => 'error',
-                'errors' => $validator->messages(),
-            ], 400);
+            return $this->jsonResponseError([
+                'messages' => $validator->messages(),
+            ], 422);
         }
 
         $this->media->makeDirectory(
             $path = trim($data['location'], '/').'/'.Str::slug($data['name'])
         );
 
-        return response()->json([
-            'status' => 'success',
-            'data'   => compact('path'),
-        ]);
+        return $this->jsonResponseSuccess(compact('path'));
     }
 
     public function renameMedia(Request $request)
     {
+        $this->authorize(MediasPolicy::PERMISSION_UPDATE);
+
         $data = $request->all();
 
         // TODO: check if the folder does not exists
@@ -152,10 +165,9 @@ class MediasController extends Controller
         ]);
 
         if ($validator->fails()) {
-            return response()->json([
-                'status' => 'error',
-                'errors' => $validator->messages(),
-            ], 400);
+            return $this->jsonResponseError([
+                'messages' => $validator->messages(),
+            ], 422);
         }
 
         // TODO Refactor this...
@@ -164,31 +176,26 @@ class MediasController extends Controller
 
         switch ($data['media']['type']) {
             case Media::MEDIA_TYPE_FILE:
-                $to = $this->moveFile($location, $from, $data);
-
-                return response()->json([
-                    'status' => 'success',
-                    'data'   => ['path' => $to],
+                return $this->jsonResponseSuccess([
+                    'path' => $this->moveFile($location, $from, $data)
                 ]);
 
             case Media::MEDIA_TYPE_DIRECTORY:
-                $to = $this->moveDirectory($location, $from, $data);
-
-                return response()->json([
-                    'status' => 'success',
-                    'data'   => ['path' => $to],
+                return $this->jsonResponseSuccess([
+                    'path' => $this->moveDirectory($location, $from, $data)
                 ]);
 
             default:
-                return response()->json([
-                    'status'  => 'error',
+                $this->jsonResponseError([
                     'message' => 'Something wrong was happened while renaming the media.',
-                ], 400);
+                ]);
         }
     }
 
     public function deleteMedia(Request $request)
     {
+        $this->authorize(MediasPolicy::PERMISSION_DELETE);
+
         // TODO: Add validation
         $data = $request->all();
         $disk = $this->media->defaultDisk();
@@ -198,16 +205,18 @@ class MediasController extends Controller
             $deleted = $disk->delete($data['media']['path']);
         }
         else {
-            $path = trim($data['media']['path'], '/');
-
-            $deleted = $disk->deleteDirectory($path);
+            $deleted = $disk->deleteDirectory(
+                trim($data['media']['path'], '/')
+            );
         }
 
-        return response()->json(['status' => $deleted ? 'success' : 'error']);
+        return $deleted ? $this->jsonResponseSuccess() : $this->jsonResponseError();
     }
 
     public function moveLocations(Request $request)
     {
+        $this->authorize(MediasPolicy::PERMISSION_UPDATE);
+
         $location  = $request->get('location');
         $name      = $request->get('name');
         $isHome    = $location == '/';
@@ -227,40 +236,44 @@ class MediasController extends Controller
             $destinations->prepend('..');
         }
 
-        return response()->json([
-            'status' => 'success',
-            'data'   => $destinations,
+        return $this->jsonResponseSuccess([
+            'destinations' => $destinations,
         ]);
     }
 
     public function moveMedia(Request $request)
     {
+        $this->authorize(MediasPolicy::PERMISSION_UPDATE);
+
         $validator = validator($data = $request->all(), [
-            'old-path' => 'required|string',
-            'new-path' => 'required|string',
+            'old-path' => ['required', 'string'],
+            'new-path' => ['required', 'string'],
         ]);
 
         if ($validator->fails()) {
-            return response()->json([
-                'status' => 'error',
-                'errors' => $validator->messages(),
-            ], 400);
+            return $this->jsonResponseError([
+                'messages' => $validator->messages(),
+            ], 422);
         }
 
-        $moved = $this->media->move($data['old-path'], $data['new-path']);
-
-        if ($moved) {
-            return response()->json([
-                'status' => 'success',
-            ]);
-        }
-
-        return $this->jsonResponseError('Something wrong happened !', 500);
+        return $this->media->move($data['old-path'], $data['new-path'])
+            ? $this->jsonResponseSuccess()
+            : $this->jsonResponseError(['message' => 'Something wrong happened !'], 500);
     }
 
     /* -----------------------------------------------------------------
      |  Other Methods
      | -----------------------------------------------------------------
+     */
+
+    /**
+     * Move a file.
+     *
+     * @param  string  $location
+     * @param  string  $from
+     * @param  array   $data
+     *
+     * @return string
      */
     private function moveFile($location, $from, array $data)
     {
@@ -272,6 +285,15 @@ class MediasController extends Controller
         return $to;
     }
 
+    /**
+     * Move a directory.
+     *
+     * @param  string  $location
+     * @param  string  $from
+     * @param  array   $data
+     *
+     * @return string
+     */
     private function moveDirectory($location, $from, array $data)
     {
         $to = $location.'/'.Str::slug($data['newName']);

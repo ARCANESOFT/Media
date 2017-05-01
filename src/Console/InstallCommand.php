@@ -1,14 +1,14 @@
 <?php namespace Arcanesoft\Media\Console;
 
-use Arcanesoft\Media\MediaServiceProvider;
+use Arcanesoft\Media\Seeds\DatabaseSeeder;
 
 /**
- * Class     PublishCommand
+ * Class     InstallCommand
  *
  * @package  Arcanesoft\Media\Console
  * @author   ARCANEDEV <arcanedev.maroc@gmail.com>
  */
-class PublishCommand extends Command
+class InstallCommand extends Command
 {
     /* -----------------------------------------------------------------
      |  Properties
@@ -20,14 +20,14 @@ class PublishCommand extends Command
      *
      * @var string
      */
-    protected $signature = 'media:publish';
+    protected $signature = 'media:install';
 
     /**
      * The console command description.
      *
      * @var string
      */
-    protected $description = 'Publish media config, assets and other stuff.';
+    protected $description = 'Install the media module.';
 
     /* -----------------------------------------------------------------
      |  Main Methods
@@ -39,8 +39,6 @@ class PublishCommand extends Command
      */
     public function handle()
     {
-        $this->call('vendor:publish', [
-            '--provider' => MediaServiceProvider::class,
-        ]);
+        $this->call('db:seed', ['--class' => DatabaseSeeder::class]);
     }
 }

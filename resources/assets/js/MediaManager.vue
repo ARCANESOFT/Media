@@ -102,7 +102,7 @@
 
                 window.axios.get(`${config.endpoint}/all`)
                     .then((response) => {
-                        this.medias.load(response.data.data);
+                        this.medias.load(response.data.medias);
                         this.loading = false;
                     })
                     .catch((error) => {
@@ -116,8 +116,8 @@
                 this.closeMediaDetails();
 
                 window.axios.get(`${config.endpoint}/all`, {params: {location}})
-                    .then(response => {
-                        this.medias.load(response.data.data);
+                    .then((response) => {
+                        this.medias.load(response.data.medias);
                         this.loading = false;
                     })
                     .catch((error) => {

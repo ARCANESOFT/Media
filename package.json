@@ -1,5 +1,6 @@
 {
     "name": "media-manager",
+    "version": "2.1.0",
     "description": "ARCANESOFT Media Manager's assets",
     "author": "ARCANEDEV",
     "license": "MIT",

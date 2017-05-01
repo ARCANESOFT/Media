@@ -21,6 +21,7 @@ class ConsoleServiceProvider extends ServiceProvider
      * @var array
      */
     protected $commands = [
+        Console\InstallCommand::class,
         Console\PublishCommand::class,
     ];
 }
