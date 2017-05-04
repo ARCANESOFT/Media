@@ -47,7 +47,7 @@
 
                 window.axios.post(`${config.endpoint}/rename`, formData)
                     .then((response) => {
-                        if (response.data.status === 'success') {
+                        if (response.data.code === 'success') {
                             this.modal.modal('hide');
                             window.eventHub.$emit(events.MEDIA_MODAL_CLOSED, true);
                         }

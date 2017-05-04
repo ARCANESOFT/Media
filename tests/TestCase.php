@@ -10,10 +10,11 @@ use Orchestra\Testbench\TestCase as BaseTestCase;
  */
 abstract class TestCase extends BaseTestCase
 {
-    /* ------------------------------------------------------------------------------------------------
-     |  Package Functions
-     | ------------------------------------------------------------------------------------------------
+    /* -----------------------------------------------------------------
+     |  Main Methods
+     | -----------------------------------------------------------------
      */
+
     /**
      * Get package providers.
      *
@@ -38,7 +39,7 @@ abstract class TestCase extends BaseTestCase
     protected function getPackageAliases($app)
     {
         return [
-            //
+            'Media' => \Arcanesoft\Media\Facades\Media::class,
         ];
     }
 

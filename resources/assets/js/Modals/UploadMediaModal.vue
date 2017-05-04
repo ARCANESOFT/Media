@@ -1,7 +1,7 @@
 <script>
     import config from './../config';
     import events from './../events';
-    import { translator } from './../mixins';
+    import { translator, errors } from './../mixins';
     import Dropzone from 'dropzone';
 
     Dropzone.autoDiscover = false;
@@ -9,7 +9,10 @@
     export default {
         name: 'upload-media-modal',
 
-        mixins: [translator],
+        mixins: [
+            translator,
+            errors
+        ],
 
         props: ['location'],
 
@@ -60,7 +63,7 @@
                         formData.append('location', that.location);
                     },
                     successmultiple(files, response) {
-                        if (response.status === 'success') {
+                        if (response.code === 'success') {
                             window.eventHub.$emit(events.MEDIA_MODAL_CLOSED, true);
 
                             that.modal.modal('hide');
@@ -69,7 +72,11 @@
                         that.submitBtn.button('reset');
                     },
                     errormultiple(files, response) {
-                        window.console.debug(files, response);
+                        that.errors.setMessages(response.messages);
+
+                        window.console.debug(files);
+
+                        that.submitBtn.button('reset');
                     }
                 });
             },

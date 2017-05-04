@@ -66,7 +66,7 @@
 
                 window.axios.put(`${config.endpoint}/move`, formData)
                     .then((response) => {
-                        if (response.data.status === 'success') {
+                        if (response.data.code === 'success') {
                             this.modal.modal('hide');
                             window.eventHub.$emit(events.MEDIA_MODAL_CLOSED, true);
                         }
@@ -76,6 +76,7 @@
                     })
                     .catch((error) => {
                         submitBtn.button('reset');
+                        console.log(error);
                     });
             },
 
@@ -94,8 +95,8 @@
 
                 window.axios.get(`${config.endpoint}/move-locations`, formData)
                     .then((response) => {
-                        if (response.data.status === 'success') {
-                            this.destinations = response.data.data;
+                        if (response.data.code === 'success') {
+                            this.destinations = response.data.destinations;
                             this.loading = false;
                             submitBtn.button('reset');
                         }
@@ -105,6 +106,7 @@
                     })
                     .catch((error) => {
                         submitBtn.button('reset');
+                        console.log(error);
                     });
             }
         }
