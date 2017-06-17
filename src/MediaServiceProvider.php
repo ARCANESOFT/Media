@@ -36,7 +36,10 @@ class MediaServiceProvider extends PackageServiceProvider
 
         $this->registerConfig();
         $this->registerSidebarItems();
-        $this->registerProvider(Providers\AuthorizationServiceProvider::class);
+        $this->registerProviders([
+            Providers\AuthorizationServiceProvider::class,
+            Providers\RouteServiceProvider::class,
+        ]);
         $this->registerConsoleServiceProvider(Providers\ConsoleServiceProvider::class);
 
         $this->syncFilesystemConfig();
@@ -49,8 +52,6 @@ class MediaServiceProvider extends PackageServiceProvider
     public function boot()
     {
         parent::boot();
-
-        $this->registerProvider(Providers\RouteServiceProvider::class);
 
         // Publishes
         $this->publishConfig();

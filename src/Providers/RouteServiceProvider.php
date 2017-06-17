@@ -15,6 +15,7 @@ class RouteServiceProvider extends ServiceProvider
      |  Properties
      | -----------------------------------------------------------------
      */
+
     /**
      * The admin controller namespace for the application.
      *
@@ -26,15 +27,14 @@ class RouteServiceProvider extends ServiceProvider
      |  Main Methods
      | -----------------------------------------------------------------
      */
+
     /**
      * Define the routes for the application.
      */
     public function map()
     {
         $this->adminGroup(function () {
-            $this->name('media.')->group(function () {
-                $this->mapAdminRoutes();
-            });
+            $this->mapAdminRoutes();
         });
     }
 
@@ -43,14 +43,16 @@ class RouteServiceProvider extends ServiceProvider
      */
     protected function mapAdminRoutes()
     {
-        $prefix = $this->config()->get('arcanesoft.media.route.prefix', 'media');
+        $this->name('media.')->group(function () {
+            $prefix = $this->config()->get('arcanesoft.media.route.prefix', 'media');
 
-        $this->prefix($prefix)->group(function () {
-            Routes\Admin\MediaRoutes::register();
-        });
+            $this->prefix($prefix)->group(function () {
+                Routes\Admin\MediaRoutes::register();
+            });
 
-        $this->prefix("api/{$prefix}")->middleware('ajax')->group(function () {
-            Routes\Admin\ApiRoutes::register();
+            $this->prefix("api/{$prefix}")->middleware('ajax')->group(function () {
+                Routes\Admin\ApiRoutes::register();
+            });
         });
     }
 }
