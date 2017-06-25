@@ -50,6 +50,9 @@ abstract class TestCase extends BaseTestCase
      */
     protected function getEnvironmentSetUp($app)
     {
-        //
+        $app['config']->set(
+            'filesystems.disks.media.root',
+            realpath(__DIR__.'/fixtures/uploads')
+        );
     }
 }

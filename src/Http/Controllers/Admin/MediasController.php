@@ -198,14 +198,13 @@ class MediasController extends Controller
 
         // TODO: Add validation
         $data = $request->all();
-        $disk = $this->media->defaultDisk();
 
         // TODO Refactor this...
         if ($data['media']['type'] == Media::MEDIA_TYPE_FILE) {
-            $deleted = $disk->delete($data['media']['path']);
+            $deleted = $this->media->deleteFile($data['media']['path']);
         }
         else {
-            $deleted = $disk->deleteDirectory(
+            $deleted = $this->media->deleteDirectory(
                 trim($data['media']['path'], '/')
             );
         }

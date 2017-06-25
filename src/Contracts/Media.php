@@ -28,6 +28,20 @@ interface Media
      */
     public function getDefaultDiskName();
 
+    /**
+     * Get excluded directories.
+     *
+     * @return array
+     */
+    public function getExcludedDirectories();
+
+    /**
+     * Get excluded files.
+     *
+     * @return array
+     */
+    public function getExcludedFiles();
+
     /* -----------------------------------------------------------------
      |  Main Methods
      | -----------------------------------------------------------------
@@ -42,20 +56,13 @@ interface Media
     public function disk($driver = null);
 
     /**
-     * Get the default filesystem adapter.
-     *
-     * @return \Illuminate\Filesystem\FilesystemAdapter
-     */
-    public function defaultDisk();
-
-    /**
      * Get all the directories & files from a given location.
      *
      * @param  string  $directory
      *
      * @return array
      */
-    public function all($directory);
+    public function all($directory = '/');
 
     /**
      * Get all of the directories within a given directory.
@@ -74,6 +81,15 @@ interface Media
      * @return \Arcanesoft\Media\Entities\FileCollection
      */
     public function files($directory);
+
+    /**
+     * Get a file details.
+     *
+     * @param  string  $path
+     *
+     * @return array
+     */
+    public function file($path);
 
     /**
      * Store an array of files.
@@ -101,6 +117,24 @@ interface Media
      * @return bool
      */
     public function makeDirectory($path);
+
+    /**
+     * Delete a directory.
+     *
+     * @param  string  $directory
+     *
+     * @return bool
+     */
+    public function deleteDirectory($directory);
+
+    /**
+     * Delete a file.
+     *
+     * @param  string  $path
+     *
+     * @return bool
+     */
+    public function deleteFile($path);
 
     /**
      * Move a file to a new location.

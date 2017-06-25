@@ -1,7 +1,10 @@
 <?php namespace Arcanesoft\Media;
 
 use Arcanesoft\Media\Contracts\Media as MediaContract;
+use Arcanesoft\Media\Entities\DirectoryCollection;
+use Arcanesoft\Media\Entities\FileCollection;
 use Arcanesoft\Media\Exceptions\DirectoryNotFound;
+use Arcanesoft\Media\Exceptions\FileNotFoundException;
 use Carbon\Carbon;
 use Illuminate\Contracts\Foundation\Application;
 use Illuminate\Http\UploadedFile;
@@ -120,17 +123,7 @@ class Media implements MediaContract
      */
     public function disk($driver = null)
     {
-        return $this->filesystem()->disk($driver);
-    }
-
-    /**
-     * Get the default filesystem adapter.
-     *
-     * @return \Illuminate\Filesystem\FilesystemAdapter|\Illuminate\Contracts\Filesystem\Filesystem
-     */
-    public function defaultDisk()
-    {
-        return $this->disk($this->getDefaultDiskName());
+        return $this->filesystem()->disk($driver ?: $this->getDefaultDiskName());
     }
 
     /**
@@ -140,17 +133,17 @@ class Media implements MediaContract
      *
      * @return array
      */
-    public function all($directory)
+    public function all($directory = '/')
     {
         $directories = $this->directories($directory)->transform(function ($item) {
             return $item + ['type' => self::MEDIA_TYPE_DIRECTORY];
-        })->toArray();
+        });
 
         $files = $this->files($directory)->transform(function (array $item) {
             return $item + ['type' => self::MEDIA_TYPE_FILE];
-        })->toArray();
+        });
 
-        return array_merge($directories, $files);
+        return array_merge($directories->toArray(), $files->toArray());
     }
 
     /**
@@ -169,9 +162,9 @@ class Media implements MediaContract
                 'name' => str_replace("$directory/", '', $dir),
                 'path' => $dir,
             ];
-        }, $this->defaultDisk()->directories($directory));
+        }, $this->disk()->directories($directory));
 
-        return Entities\DirectoryCollection::make($directories)
+        return DirectoryCollection::make($directories)
             ->exclude($this->getExcludedDirectories());
     }
 
@@ -186,7 +179,7 @@ class Media implements MediaContract
     {
         $this->checkDirectory($directory);
 
-        $disk = $this->defaultDisk();
+        $disk = $this->disk();
 
         // TODO: Add a feature to exclude unwanted files.
         $files = array_map(function ($filePath) use ($disk, $directory) {
@@ -201,8 +194,23 @@ class Media implements MediaContract
             ];
         }, $disk->files($directory));
 
-        return Entities\FileCollection::make($files)
-            ->exclude($this->getExcludedFiles());
+        return FileCollection::make($files)->exclude($this->getExcludedFiles());
+    }
+
+    /**
+     * Get the file details.
+     *
+     * @param  string  $path
+     *
+     * @return array
+     */
+    public function file($path)
+    {
+        return $this->files(dirname($path))->first(function ($file) use ($path) {
+            return $file['path'] === $path;
+        }, function () use ($path) {
+            throw new FileNotFoundException("File [$path] not found!");
+        });
     }
 
     /**
@@ -240,7 +248,31 @@ class Media implements MediaContract
      */
     public function makeDirectory($path)
     {
-        return $this->defaultDisk()->makeDirectory($path);
+        return $this->disk()->makeDirectory($path);
+    }
+
+    /**
+     * Delete a directory.
+     *
+     * @param  string  $directory
+     *
+     * @return bool
+     */
+    public function deleteDirectory($directory)
+    {
+        return $this->disk()->deleteDirectory($directory);
+    }
+
+    /**
+     * Delete a file.
+     *
+     * @param  string  $path
+     *
+     * @return bool
+     */
+    public function deleteFile($path)
+    {
+        return $this->disk()->delete($path);
     }
 
     /**
@@ -253,7 +285,7 @@ class Media implements MediaContract
      */
     public function move($from, $to)
     {
-        return $this->defaultDisk()->move($from, $to);
+        return $this->disk()->move($from, $to);
     }
 
     /* -----------------------------------------------------------------
@@ -270,7 +302,7 @@ class Media implements MediaContract
      */
     public function exists($path)
     {
-        return $this->defaultDisk()->exists($path);
+        return $this->disk()->exists($path);
     }
 
     /**
