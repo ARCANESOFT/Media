@@ -27,7 +27,7 @@ class MediaTest extends TestCase
     {
         parent::setUp();
 
-        $this->media = $this->app->make(\Arcanesoft\Media\Contracts\Media::class);
+        $this->media = $this->media();
     }
 
     public function tearDown()
@@ -69,8 +69,6 @@ class MediaTest extends TestCase
     /** @test */
     public function it_can_get_excluded_directories()
     {
-        $this->assertSame([], $this->media->getExcludedDirectories());
-
         $this->app['config']->set('arcanesoft.media.directories.excluded', [
             'secret/folder',
         ]);
@@ -97,7 +95,6 @@ class MediaTest extends TestCase
 
         $expected = [
             ['name' => 'images', 'path' => 'images'],
-            ['name' => 'secret', 'path' => 'secret'],
         ];
 
         $this->assertSame(count($expected), $directories->count());
@@ -123,10 +120,6 @@ class MediaTest extends TestCase
      */
     public function it_must_throw_exception_if_directory_is_ignored()
     {
-        $this->app['config']->set('arcanesoft.media.directories.excluded', [
-            'secret',
-        ]);
-
         $this->media->directories('secret');
     }
 
@@ -137,7 +130,6 @@ class MediaTest extends TestCase
 
         $expected = [
             ['name' => 'images', 'path' => 'images', 'type' => 'directory'],
-            ['name' => 'secret', 'path' => 'secret', 'type' => 'directory'],
         ];
 
         $this->assertSame(count($expected), count($medias));
@@ -217,13 +209,13 @@ class MediaTest extends TestCase
 
         $this->assertCount(0, $this->media->files('files'));
 
-        $this->media->storeMany('files', [
+        $uploaded = $this->media->storeMany('files', [
             UploadedFile::fake()->create('file-1.txt'),
             UploadedFile::fake()->create('file-2.txt'),
             UploadedFile::fake()->create('file-3.txt'),
         ]);
 
-        $this->assertCount(3, $this->media->files('files'));
+        $this->assertCount(count($uploaded), $this->media->files('files'));
 
         $this->media->deleteDirectory('files');
     }

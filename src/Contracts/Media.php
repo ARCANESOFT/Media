@@ -96,6 +96,8 @@ interface Media
      *
      * @param  string  $directory
      * @param  array   $files
+     *
+     * @return array
      */
     public function storeMany($directory, array $files);
 
