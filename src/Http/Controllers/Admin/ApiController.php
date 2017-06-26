@@ -131,20 +131,20 @@ class ApiController
             $path = trim($data['location'], '/').'/'.Str::slug($data['name'])
         );
 
-        return $this->jsonResponseSuccess(compact('path'));
+        return $this->jsonResponseSuccess(['data' => compact('path')]);
     }
 
     public function renameMedia(Request $request)
     {
         $this->authorize(MediasPolicy::PERMISSION_UPDATE);
 
-        $data = $request->all();
-
         // TODO: check if the folder does not exists
-        $validator = validator($data, [
-            'media'    => ['required', 'array'],
-            'newName'  => ['required', 'string'],
-            'location' => ['required', 'string'],
+        $validator = validator($data = $request->all(), [
+            'media'      => ['required', 'array'],
+            'media.type' => ['required', 'string', 'in:'.implode(',', [Media::MEDIA_TYPE_FILE, Media::MEDIA_TYPE_DIRECTORY])],
+            'media.name' => ['required', 'string'],
+            'newName'    => ['required', 'string'],
+            'location'   => ['required', 'string'],
         ]);
 
         if ($validator->fails()) {
@@ -159,20 +159,22 @@ class ApiController
 
         switch ($data['media']['type']) {
             case Media::MEDIA_TYPE_FILE:
-                return $this->jsonResponseSuccess([
-                    'path' => $this->moveFile($location, $from, $data)
-                ]);
+                $path = $this->moveFile($location, $from, $data['newName']);
+                break;
 
             case Media::MEDIA_TYPE_DIRECTORY:
-                return $this->jsonResponseSuccess([
-                    'path' => $this->moveDirectory($location, $from, $data)
-                ]);
+                $path = $this->moveDirectory($location, $from, $data['newName']);
+                break;
 
             default:
-                $this->jsonResponseError([
+                return $this->jsonResponseError([
                     'message' => 'Something wrong was happened while renaming the media.',
                 ]);
         }
+
+        return $this->jsonResponseSuccess([
+            'data' => compact('path'),
+        ]);
     }
 
     public function deleteMedia(Request $request)
@@ -253,16 +255,15 @@ class ApiController
      *
      * @param  string  $location
      * @param  string  $from
-     * @param  array   $data
+     * @param  string  $newName
      *
      * @return string
      */
-    private function moveFile($location, $from, array $data)
+    private function moveFile($location, $from, $newName)
     {
-        $ext = pathinfo($data['media']['url'], PATHINFO_EXTENSION);
-        $to  = $location.'/'.Str::slug(str_replace(".{$ext}", '', $data['newName'])).'.'.$ext;
+        $filename = Str::slug(pathinfo($newName, PATHINFO_FILENAME)).'.'.pathinfo($newName, PATHINFO_EXTENSION);
 
-        $this->media->move($from, $to);
+        $this->media->move($from, $to = $location.'/'.$filename);
 
         return $to;
     }
@@ -272,13 +273,13 @@ class ApiController
      *
      * @param  string  $location
      * @param  string  $from
-     * @param  array   $data
+     * @param  string  $newName
      *
      * @return string
      */
-    private function moveDirectory($location, $from, array $data)
+    private function moveDirectory($location, $from, $newName)
     {
-        $to = $location.'/'.Str::slug($data['newName']);
+        $to = $location.'/'.Str::slug($newName);
 
         $this->media->move($from, $to);
 

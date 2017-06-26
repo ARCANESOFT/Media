@@ -148,6 +148,163 @@ class MediaApiTest extends TestCase
              ]);
     }
 
+    /** @test */
+    public function it_can_create_directory()
+    {
+        $this->beAdmin();
+
+        $resp = $this->postJson(route('admin::media.api.create'), [
+            'location' => '/',
+            'name'     => 'files',
+        ]);
+
+        $resp->assertStatus(200)
+             ->assertExactJson([
+                 'status' => 200,
+                 'code'   => 'success',
+                 'data'   => ['path' => '/files']
+             ]);
+
+        $this->media()->deleteDirectory('/files');
+    }
+
+    /** @test */
+    public function it_must_fail_validation_on_create_directory()
+    {
+        $this->beAdmin();
+
+        $resp = $this->postJson(route('admin::media.api.create'), []);
+
+        $resp->assertStatus(422)
+             ->assertExactJson([
+                 'status'   => 422,
+                 'code'     => 'error',
+                 'messages' => [
+                     'name' => [
+                         'The name field is required.',
+                     ],
+                     'location' => [
+                         'The location field is required.',
+                     ],
+                 ],
+             ]);
+    }
+
+    /** @test */
+    public function it_can_rename_directory()
+    {
+        $this->beAdmin();
+
+        $resp = $this->postJson(route('admin::media.api.rename'), [
+            'media' => [
+                'type' => 'directory',
+                'name' => 'images'
+            ],
+            'newName'  => 'pictures',
+            'location' => '/',
+        ]);
+
+        $resp->assertStatus(200)
+             ->assertExactJson([
+                 'status' => 200,
+                 'code'   => 'success',
+                 'data'   => [
+                     'path'   => '/pictures'
+                 ],
+             ]);
+
+        $resp = $this->postJson(route('admin::media.api.rename'), [
+            'media' => [
+                'type' => 'directory',
+                'name' => 'pictures'
+            ],
+            'newName'  => 'images',
+            'location' => '/',
+        ]);
+
+        $resp->assertStatus(200)
+             ->assertExactJson([
+                 'status' => 200,
+                 'code'   => 'success',
+                 'data'   => [
+                     'path'   => '/images'
+                 ],
+             ]);
+    }
+
+    /** @test */
+    public function it_can_rename_file()
+    {
+        $this->beAdmin();
+
+        $resp = $this->postJson(route('admin::media.api.rename'), [
+            'media' => [
+                'type' => 'file',
+                'name' => 'logo.png',
+            ],
+            'newName'  => 'avatar.png',
+            'location' => '/images',
+        ]);
+
+        $resp->assertStatus(200)
+             ->assertExactJson([
+                 'status' => 200,
+                 'code'   => 'success',
+                 'data'   => [
+                     'path'   => 'images/avatar.png'
+                 ],
+             ]);
+
+        $resp = $this->postJson(route('admin::media.api.rename'), [
+            'media' => [
+                'type' => 'file',
+                'name' => 'avatar.png',
+            ],
+            'newName'  => 'logo.png',
+            'location' => '/images',
+        ]);
+
+        $resp->assertStatus(200)
+             ->assertExactJson([
+                 'status' => 200,
+                 'code'   => 'success',
+                 'data'   => [
+                     'path'   => 'images/logo.png'
+                 ],
+             ]);
+    }
+
+    /** @test */
+    public function it_must_fail_validation_on_rename_directory()
+    {
+        $this->beAdmin();
+
+        $resp = $this->postJson(route('admin::media.api.rename'), []);
+
+        $resp->assertStatus(422)
+             ->assertExactJson([
+                 'status'   => 422,
+                 'code'     => 'error',
+                 'messages' => [
+                     'media'      => [
+                         "The media field is required.",
+                     ],
+                     "media.type" => [
+                         "The media.type field is required.",
+                     ],
+                     "media.name" => [
+                         "The media.name field is required.",
+                     ],
+                     'newName'    => [
+                         'The new name field is required.',
+                     ],
+                     'location'   => [
+                         'The location field is required.',
+                     ],
+                 ],
+             ]);
+    }
+
     /* -----------------------------------------------------------------
      |  Other Methods
      | -----------------------------------------------------------------
