@@ -20,25 +20,25 @@ class ApiRoutes extends RouteRegistrar
     public function map()
     {
         $this->name('api.')->group(function () {
-            $this->get('all', 'MediasController@getAll')
+            $this->get('all', 'ApiController@getAll')
                  ->name('get');    // admin::media.api.get
 
-            $this->post('upload', 'MediasController@uploadMedia')
+            $this->post('upload', 'ApiController@uploadMedia')
                  ->name('upload'); // admin::media.api.upload
 
-            $this->post('rename', 'MediasController@renameMedia')
+            $this->post('rename', 'ApiController@renameMedia')
                  ->name('rename'); // admin::media.api.rename
 
-            $this->post('delete', 'MediasController@deleteMedia')
+            $this->post('delete', 'ApiController@deleteMedia')
                  ->name('delete'); // admin::media.api.delete
 
-            $this->get('move-locations', 'MediasController@moveLocations')
+            $this->get('move-locations', 'ApiController@moveLocations')
                  ->name('move-locations'); // admin::media.api.move-locations
 
-            $this->put('move', 'MediasController@moveMedia')
+            $this->put('move', 'ApiController@moveMedia')
                  ->name('move'); // admin::media.api.move
 
-            $this->post('create', 'MediasController@createDirectory')
+            $this->post('create', 'ApiController@createDirectory')
                  ->name('create'); // admin::media.api.create
         });
     }
