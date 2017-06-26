@@ -218,12 +218,19 @@ class Media implements MediaContract
      *
      * @param  string  $directory
      * @param  array   $files
+     *
+     * @return array
      */
     public function storeMany($directory, array $files)
     {
+        $uploaded = [];
+
         foreach ($files as $file) {
-            $this->store($directory, $file);
+            /** @var \Illuminate\Http\UploadedFile $file */
+            $uploaded[$directory.'/'.$file->getClientOriginalName()] = $this->store($directory, $file);
         }
+
+        return $uploaded;
     }
 
     /**
