@@ -218,25 +218,39 @@ class Media implements MediaContract
      *
      * @param  string  $directory
      * @param  array   $files
+     *
+     * @return array
      */
     public function storeMany($directory, array $files)
     {
+        $uploaded = [];
+
         foreach ($files as $file) {
-            $this->store($directory, $file);
+            /** @var \Illuminate\Http\UploadedFile $file */
+            $uploaded[$directory.'/'.$file->getClientOriginalName()] = $this->store($directory, $file);
         }
+
+        return $uploaded;
     }
 
     /**
      * Store a file.
      *
-     * @param  string                         $directory
+     * @param  string                         $path
      * @param  \Illuminate\Http\UploadedFile  $file
+     * @param  array                          $options
      *
      * @return string|false
      */
-    public function store($directory, UploadedFile $file)
+    public function store($path, UploadedFile $file, array $options = [])
     {
-        return $file->store($directory, $this->getDefaultDiskName());
+        $options = array_merge(['disk' => $this->getDefaultDiskName()], $options);
+
+        event(new Events\FileStoring($path, $file, $options));
+        $storedPath = $file->storeAs($path, $file->hashName(), $options);
+        event(new Events\FileStored($path, $file, $options, $storedPath));
+
+        return $storedPath;
     }
 
     /**
@@ -248,7 +262,11 @@ class Media implements MediaContract
      */
     public function makeDirectory($path)
     {
-        return $this->disk()->makeDirectory($path);
+        event(new Events\DirectoryCreating($path));
+        $created = $this->disk()->makeDirectory($path);
+        event(new Events\DirectoryCreated($path, $created));
+
+        return $created;
     }
 
     /**
@@ -260,7 +278,11 @@ class Media implements MediaContract
      */
     public function deleteDirectory($directory)
     {
-        return $this->disk()->deleteDirectory($directory);
+        event(new Events\DirectoryDeleting($directory));
+        $deleted = $this->disk()->deleteDirectory($directory);
+        event(new Events\DirectoryDeleted($directory, $deleted));
+
+        return $deleted;
     }
 
     /**
@@ -272,7 +294,11 @@ class Media implements MediaContract
      */
     public function deleteFile($path)
     {
-        return $this->disk()->delete($path);
+        event(new Events\FileDeleting($path));
+        $deleted = $this->disk()->delete($path);
+        event(new Events\FileDeleted($path, $deleted));
+
+        return $deleted;
     }
 
     /**
@@ -285,7 +311,11 @@ class Media implements MediaContract
      */
     public function move($from, $to)
     {
-        return $this->disk()->move($from, $to);
+        event(new Events\FileMoving($from, $to));
+        $moved = $this->disk()->move($from, $to);
+        event(new Events\FileMoved($from, $to, $moved));
+
+        return $moved;
     }
 
     /* -----------------------------------------------------------------

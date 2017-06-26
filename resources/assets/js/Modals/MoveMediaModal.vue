@@ -60,8 +60,8 @@
                 submitBtn.button('loading');
 
                 let formData = {
-                    'old-path': this.media.path,
-                    'new-path': this.newLocation
+                    'old_path': this.media.path,
+                    'new_path': this.newLocation
                 };
 
                 window.axios.put(`${config.endpoint}/move`, formData)

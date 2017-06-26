@@ -96,6 +96,8 @@ interface Media
      *
      * @param  string  $directory
      * @param  array   $files
+     *
+     * @return array
      */
     public function storeMany($directory, array $files);
 
@@ -104,10 +106,11 @@ interface Media
      *
      * @param  string                         $directory
      * @param  \Illuminate\Http\UploadedFile  $file
+     * @param  array                          $options
      *
      * @return string|false
      */
-    public function store($directory, UploadedFile $file);
+    public function store($directory, UploadedFile $file, array $options = []);
 
     /**
      * Create a directory.
