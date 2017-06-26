@@ -23,7 +23,8 @@
     "require-dev": {
         "arcanesoft/foundation": "~2.2",
         "phpunit/phpcov":  "~3.0",
-        "phpunit/phpunit": "~5.0"
+        "phpunit/phpunit": "~5.0",
+        "mockery/mockery": "0.9.*"
     },
     "autoload": {
         "psr-4": {

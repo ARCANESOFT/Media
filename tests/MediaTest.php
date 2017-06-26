@@ -1,5 +1,6 @@
 <?php namespace Arcanesoft\Media\Tests;
 
+use Arcanesoft\Media\Events;
 use Illuminate\Http\UploadedFile;
 
 /**
@@ -166,10 +167,16 @@ class MediaTest extends TestCase
     /** @test */
     public function it_can_make_and_delete_directory()
     {
+        $this->assertEvents([
+            Events\DirectoryCreating::class,
+            Events\DirectoryCreated::class,
+            Events\DirectoryDeleting::class,
+            Events\DirectoryDeleted::class,
+        ]);
+
         $this->assertTrue($this->media->makeDirectory('tmp'));
 
         $this->assertTrue($this->media->exists('tmp'));
-
         $this->assertTrue($this->media->deleteDirectory('tmp'));
 
         $this->assertFalse($this->media->exists('tmp'));
@@ -179,6 +186,13 @@ class MediaTest extends TestCase
     /** @test */
     public function it_can_store_and_get_and_delete_file()
     {
+        $this->assertEvents([
+            Events\FileStoring::class,
+            Events\FileStored::class,
+            Events\FileDeleting::class,
+            Events\FileDeleted::class,
+        ]);
+
         $path = $this->media->store(
             'images/avatars',
             UploadedFile::fake()->image('user-1.png', 64, 64)
@@ -205,6 +219,15 @@ class MediaTest extends TestCase
     /** @test */
     public function it_can_store_many_files()
     {
+        $this->assertEvents([
+            Events\DirectoryCreating::class,
+            Events\DirectoryCreated::class,
+            Events\DirectoryDeleting::class,
+            Events\DirectoryDeleted::class,
+            Events\FileStoring::class,
+            Events\FileStored::class,
+        ]);
+
         $this->media->makeDirectory('files');
 
         $this->assertCount(0, $this->media->files('files'));
@@ -223,6 +246,11 @@ class MediaTest extends TestCase
     /** @test */
     public function it_can_move_file()
     {
+        $this->assertEvents([
+            Events\FileMoving::class,
+            Events\FileMoved::class,
+        ]);
+
         $this->media->move('images/logo.png', 'images/avatars/logo.png');
 
         $this->assertCount(0, $this->media->files('images'));
@@ -243,5 +271,34 @@ class MediaTest extends TestCase
     public function it_must_throw_exception_while_getting_a_file_that_does_not_exist()
     {
         $this->media->file('images/dank-meme.jpeg');
+    }
+
+    /* -----------------------------------------------------------------
+     |  Other methods
+     | -----------------------------------------------------------------
+     */
+
+    /**
+     * Assert the events.
+     *
+     * @param  array  $events
+     */
+    protected function assertEvents(array $events)
+    {
+        $all = [
+            Events\DirectoryCreating::class,
+            Events\DirectoryCreated::class,
+            Events\DirectoryDeleting::class,
+            Events\DirectoryDeleted::class,
+            Events\FileDeleted::class,
+            Events\FileDeleting::class,
+            Events\FileMoving::class,
+            Events\FileMoved::class,
+            Events\FileStoring::class,
+            Events\FileStored::class,
+        ];
+
+        $this->expectsEvents($events);
+        $this->doesntExpectEvents(array_diff($all, $events));
     }
 }
