@@ -1,20 +1,22 @@
-<?php namespace Arcanesoft\Media\Tests;
+<?php namespace Arcanesoft\Media\Tests\Unit\Providers;
+
+use Arcanesoft\Media\Tests\TestCase;
 
 /**
- * Class     MediaServiceProviderTest
+ * Class     CommandServiceProviderTest
  *
- * @package  Arcanesoft\Media\Tests
+ * @package  Arcanesoft\Media\Tests\Providers
  * @author   ARCANEDEV <arcanedev.maroc@gmail.com>
  */
-class MediaServiceProviderTest extends TestCase
+class CommandServiceProviderTest extends TestCase
 {
     /* -----------------------------------------------------------------
      |  Properties
      | -----------------------------------------------------------------
      */
 
-    /** @var  \Arcanesoft\Media\MediaServiceProvider */
-    protected $provider;
+    /** @var  \Arcanesoft\Media\Providers\ConsoleServiceProvider */
+    private $provider;
 
     /* -----------------------------------------------------------------
      |  Main Methods
@@ -25,7 +27,7 @@ class MediaServiceProviderTest extends TestCase
     {
         parent::setUp();
 
-        $this->provider = $this->app->getProvider(\Arcanesoft\Media\MediaServiceProvider::class);
+        $this->provider = $this->app->getProvider(\Arcanesoft\Media\Providers\ConsoleServiceProvider::class);
     }
 
     public function tearDown()
@@ -46,9 +48,7 @@ class MediaServiceProviderTest extends TestCase
         $expectations = [
             \Illuminate\Support\ServiceProvider::class,
             \Arcanedev\Support\ServiceProvider::class,
-            \Arcanedev\Support\PackageServiceProvider::class,
-            \Arcanesoft\Core\Bases\PackageServiceProvider::class,
-            \Arcanesoft\Media\MediaServiceProvider::class,
+            \Arcanesoft\Media\Providers\ConsoleServiceProvider::class,
         ];
 
         foreach ($expectations as $expected) {
@@ -60,7 +60,8 @@ class MediaServiceProviderTest extends TestCase
     public function it_can_provides()
     {
         $expected = [
-            \Arcanesoft\Media\Contracts\Media::class,
+            \Arcanesoft\Media\Console\InstallCommand::class,
+            \Arcanesoft\Media\Console\PublishCommand::class,
         ];
 
         $this->assertSame($expected, $this->provider->provides());

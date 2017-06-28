@@ -20,6 +20,6 @@ class MediaRoutes extends RouteRegistrar
     public function map()
     {
         $this->get('/', 'MediasController@index')
-             ->name('index'); // media::foundation.index
+             ->name('index'); // admin::media.index
     }
 }
