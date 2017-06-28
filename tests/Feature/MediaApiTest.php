@@ -1,12 +1,13 @@
-<?php namespace Arcanesoft\Media\Tests;
+<?php namespace Arcanesoft\Media\Tests\Feature;
 
 use Arcanesoft\Media\Tests\Stubs\Models\User;
+use Arcanesoft\Media\Tests\TestCase;
 use Illuminate\Http\UploadedFile;
 
 /**
  * Class     MediaApiTest
  *
- * @package  Arcanesoft\Media\Tests
+ * @package  Arcanesoft\Media\Tests\Feature
  * @author   ARCANEDEV <arcanedev.maroc@gmail.com>
  */
 class MediaApiTest extends TestCase

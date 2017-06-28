@@ -31,6 +31,8 @@ class ExcludePattern
                 : $pattern.'/*';
         }
 
-        return array_unique($patterns);
+        asort($patterns);
+
+        return array_values(array_unique($patterns));
     }
 }

@@ -1,12 +1,13 @@
-<?php namespace Arcanesoft\Media\Tests;
+<?php namespace Arcanesoft\Media\Tests\Unit;
 
 use Arcanesoft\Media\Events;
+use Arcanesoft\Media\Tests\TestCase;
 use Illuminate\Http\UploadedFile;
 
 /**
  * Class     MediaTest
  *
- * @package  Arcanesoft\Media\Tests
+ * @package  Arcanesoft\Media\Tests\Unit
  * @author   ARCANEDEV <arcanedev.maroc@gmail.com>
  */
 class MediaTest extends TestCase
