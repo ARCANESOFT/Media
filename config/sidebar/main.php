@@ -1,7 +1,6 @@
 <?php
 
 use Arcanesoft\Auth\Models\Role;
-use Arcanesoft\Media\Policies\MediasPolicy;
 
 return [
     'title'       => 'Media',
@@ -10,7 +9,7 @@ return [
     'icon'        => 'fa fa-fw fa-picture-o',
     'roles'       => [Role::ADMINISTRATOR],
     'permissions' => [
-        MediasPolicy::PERMISSION_LIST,
+        Arcanesoft\Media\Policies\MediasPolicy::PERMISSION_LIST,
     ],
     'children'    => [
         //

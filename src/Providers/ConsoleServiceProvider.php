@@ -15,6 +15,7 @@ class ConsoleServiceProvider extends ServiceProvider
      |  Properties
      | -----------------------------------------------------------------
      */
+
     /**
      * Console commands.
      *

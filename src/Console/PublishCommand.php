@@ -1,5 +1,6 @@
 <?php namespace Arcanesoft\Media\Console;
 
+use Arcanedev\Support\Bases\Command;
 use Arcanesoft\Media\MediaServiceProvider;
 
 /**
