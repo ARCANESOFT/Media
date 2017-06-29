@@ -15,6 +15,7 @@ class FileCollection extends Collection
      |  Main Methods
      | -----------------------------------------------------------------
      */
+
     /**
      * ExcludePattern files with the given patterns.
      *

@@ -15,6 +15,7 @@ class DirectoryCollection extends Collection
      |  Main Methods
      | -----------------------------------------------------------------
      */
+
     /**
      * ExcludePattern directories with the given patterns.
      *

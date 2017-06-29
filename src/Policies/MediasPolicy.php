@@ -1,6 +1,7 @@
 <?php namespace Arcanesoft\Media\Policies;
 
 use Arcanesoft\Contracts\Auth\Models\User;
+use Arcanesoft\Core\Bases\Policy;
 
 /**
  * Class     MediaPolicy
@@ -8,7 +9,7 @@ use Arcanesoft\Contracts\Auth\Models\User;
  * @package  Arcanesoft\Media\Policies
  * @author   ARCANEDEV <arcanedev.maroc@gmail.com>
  */
-class MediasPolicy extends AbstractPolicy
+class MediasPolicy extends Policy
 {
     /* -----------------------------------------------------------------
      |  Constants
