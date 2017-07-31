@@ -14,6 +14,7 @@ class ExcludePattern
      |  Main Methods
      | -----------------------------------------------------------------
      */
+
     /**
      * @param  array  $patterns
      *
