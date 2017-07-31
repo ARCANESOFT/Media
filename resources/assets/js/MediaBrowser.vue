@@ -54,21 +54,27 @@
 
         data() {
             return {
+                modalId: '',
                 url: ''
             }
         },
 
         mounted() {
+            this.modalId = 'browse-modal-'+Math.random().toString(16).slice(2);
             this.url = this.value;
 
-            window.eventHub.$on(events.MEDIA_MODAL_BROWSER_SELECT, (url) => {
-                this.url = url;
+            window.eventHub.$on(events.MEDIA_MODAL_BROWSER_SELECT, (data) => {
+                if (this.modalId === data.modalId) {
+                    this.url = data.url;
+                }
             });
         },
 
         methods: {
             openBrowserModal() {
-                window.eventHub.$emit(events.MEDIA_MODAL_BROWSER_OPEN);
+                window.eventHub.$emit(events.MEDIA_MODAL_BROWSER_OPEN, {
+                    modalId: this.modalId
+                });
             }
         }
     }
@@ -81,12 +87,12 @@
                    :placeholder="placeholder" :disabled="disabled" :readonly="readonly" :required="required">
 
             <span class="input-group-btn">
-                <button class="btn btn-default" type="button" @click.prevent="openBrowserModal">
+                <button class="btn btn-default" type="button" @click.prevent="openBrowserModal()">
                     <slot>{{ lang.get('actions.browse') }}</slot>
                 </button>
             </span>
         </div>
 
-        <browse-media-modal></browse-media-modal>
+        <browse-media-modal :id="modalId"></browse-media-modal>
     </div>
 </template>

@@ -6,6 +6,8 @@
     export default {
         name: 'media-browser-modal',
 
+        props: ['id'],
+
         mixins: [translator],
 
         components: {
@@ -21,18 +23,24 @@
         },
 
         mounted() {
-            this.modal = $('div#media-browser-modal');
+            const that = this;
 
-            this.modal.on('hidden.bs.modal', () => {
-                this.modalOpened = false;
-            });
+            $(() => {
+                that.modal = $(that.$el);
 
-            window.eventHub.$on(events.MEDIA_MODAL_BROWSER_OPEN, () => {
-                this.openModal();
-            });
+                that.modal.on('hidden.bs.modal', () => {
+                    that.modalOpened = false;
+                });
 
-            window.eventHub.$on(events.MEDIA_ITEM_SELECTED, (media) => {
-                this.selected = (media && media.isFile()) ? media : null;
+                window.eventHub.$on(events.MEDIA_MODAL_BROWSER_OPEN, (data) => {
+                    if (that.id === data.modalId) {
+                        that.openModal();
+                    }
+                });
+
+                window.eventHub.$on(events.MEDIA_ITEM_SELECTED, (media) => {
+                    that.selected = (media && media.isFile()) ? media : null;
+                });
             });
         },
 
@@ -58,14 +66,18 @@
 
             selectMedia() {
                 this.closeModal();
-                window.eventHub.$emit(events.MEDIA_MODAL_BROWSER_SELECT, this.selected.url);
+
+                window.eventHub.$emit(events.MEDIA_MODAL_BROWSER_SELECT, {
+                    url: this.selected.url,
+                    modalId: this.id
+                });
             }
         }
     }
 </script>
 
 <template>
-    <div id="media-browser-modal" class="modal fade">
+    <div class="media-browser-modal modal fade">
         <div class="modal-dialog modal-xl">
             <div class="modal-content">
                 <div class="modal-header">
