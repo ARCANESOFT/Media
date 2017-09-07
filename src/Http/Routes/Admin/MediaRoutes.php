@@ -14,6 +14,7 @@ class MediaRoutes extends RouteRegistrar
      |  Main Methods
      | -----------------------------------------------------------------
      */
+
     /**
      * Map routes.
      */

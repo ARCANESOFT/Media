@@ -16,6 +16,7 @@ abstract class Controller extends AdminController
      |  Traits
      | -----------------------------------------------------------------
      */
+
     use Notifyable,
         JsonResponses;
 
@@ -23,24 +24,11 @@ abstract class Controller extends AdminController
      |  Properties
      | -----------------------------------------------------------------
      */
+
     /**
      * The view namespace.
      *
      * @var string
      */
     protected $viewNamespace = 'media';
-
-    /* -----------------------------------------------------------------
-     |  Constructor
-     | -----------------------------------------------------------------
-     */
-    /**
-     * Instantiate the controller.
-     */
-    public function __construct()
-    {
-        parent::__construct();
-
-        $this->addBreadcrumbRoute('Media', 'admin::media.index');
-    }
 }

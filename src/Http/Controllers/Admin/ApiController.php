@@ -54,6 +54,7 @@ class ApiController
      |  Main Methods
      | -----------------------------------------------------------------
      */
+
     /**
      * Get the the media files.
      *
@@ -65,10 +66,10 @@ class ApiController
     {
         $this->authorize(MediasPolicy::PERMISSION_LIST);
 
-        $location = $request->get('location', '/');
-
         return $this->jsonResponseSuccess([
-            'medias' => $this->media->all($location),
+            'medias' => $this->media->all(
+                $request->get('location', '/')
+            ),
         ]);
     }
 
@@ -83,6 +84,7 @@ class ApiController
     {
         $this->authorize(MediasPolicy::PERMISSION_CREATE);
 
+        // TODO: Refactor this with the Laravel 5.5 new Exception Handler & Form Request
         $validator = validator($request->all(), [
             'location' => ['required', 'string'],
             'medias'   => ['required', 'array'],
@@ -115,8 +117,8 @@ class ApiController
     {
         $this->authorize(MediasPolicy::PERMISSION_CREATE);
 
-        $data      = $request->all();
-        $validator = validator($data, [
+        // TODO: Refactor this with the Laravel 5.5 new Exception Handler & Form Request
+        $validator = validator($data = $request->all(), [
             'name'     => ['required', 'string'], // TODO: check if the folder does not exists
             'location' => ['required', 'string'],
         ]);
@@ -138,7 +140,8 @@ class ApiController
     {
         $this->authorize(MediasPolicy::PERMISSION_UPDATE);
 
-        // TODO: check if the folder does not exists
+        // TODO: Refactor this with the Laravel 5.5 new Exception Handler & Form Request
+        // TODO: Check if the folder does not exists
         $validator = validator($data = $request->all(), [
             'media'      => ['required', 'array'],
             'media.type' => ['required', 'string'],
@@ -153,25 +156,18 @@ class ApiController
             ], 422);
         }
 
-        // TODO Refactor this...
-        $location = trim($data['location'], '/');
-        $from     = $location.'/'.$data['media']['name'];
+        $path = $this->performMoveMedia(
+            $data['media']['type'],
+            trim($data['location'], '/'),
+            $data['media']['name'],
+            $data['newName']
+        );
 
-        switch (strtolower($data['media']['type'])) {
-            case Media::MEDIA_TYPE_FILE:
-                $path = $this->moveFile($location, $from, $data['newName']);
-                break;
-
-            case Media::MEDIA_TYPE_DIRECTORY:
-                $path = $this->moveDirectory($location, $from, $data['newName']);
-                break;
-
-            default:
-                return $this->jsonResponseError([
-                    'message' => 'Something wrong was happened while renaming the media.',
-                ], 500);
+        if ($path === false) {
+            return $this->jsonResponseError([
+                'message' => 'Something wrong was happened while renaming the media.',
+            ], 500);
         }
-
         return $this->jsonResponseSuccess([
             'data' => compact('path'),
         ]);
@@ -181,7 +177,7 @@ class ApiController
     {
         $this->authorize(MediasPolicy::PERMISSION_DELETE);
 
-        // TODO: Add validation
+        // TODO: Refactor this with the Laravel 5.5 new Exception Handler & Form Request
         $validator = validator($data = $request->all(), [
             'media'      => ['required', 'array'],
             'media.type' => ['required', 'string'],
@@ -194,40 +190,20 @@ class ApiController
             ], 422);
         }
 
-        $type = $data['media']['type'];
-        $path = $data['media']['path'];
-
-        // TODO Refactor this...
-        $deleted = false;
-
-        if ($type == Media::MEDIA_TYPE_FILE) {
-            $deleted = $this->media->deleteFile($path);
-        }
-        elseif ($type == Media::MEDIA_TYPE_DIRECTORY) {
-            $deleted = $this->media->deleteDirectory(trim($path, '/'));
-        }
-
-        return $deleted ? $this->jsonResponseSuccess() : $this->jsonResponseError();
+        return $this->performDeleteMedia($data['media']['type'], $data['media']['path'])
+            ? $this->jsonResponseSuccess()
+            : $this->jsonResponseError();
     }
 
     public function moveLocations(Request $request)
     {
         $this->authorize(MediasPolicy::PERMISSION_UPDATE);
 
-        $location  = $request->get('location', '/');
-        $name      = $request->get('name');
-        $isHome    = $location === '/';
-        $selected  = $isHome ? $name : $location.'/'.$name;
-
-        $destinations = $this->media->directories($location)
-            ->pluck('path')
-            ->reject(function ($path) use ($selected) {
-                return $path === $selected;
-            })
-            ->values();
-
-        if ( ! $isHome)
-            $destinations->prepend('..');
+        // TODO: Adding validation ?
+        $destinations = $this->getDestinations(
+            $request->get('name'),
+            $request->get('location', '/')
+        );
 
         return $this->jsonResponseSuccess(compact('destinations'));
     }
@@ -236,6 +212,7 @@ class ApiController
     {
         $this->authorize(MediasPolicy::PERMISSION_UPDATE);
 
+        // TODO: Refactor this with the Laravel 5.5 new Exception Handler & Form Request
         $validator = validator($data = $request->all(), [
             'old_path' => ['required', 'string'],
             'new_path' => ['required', 'string'],
@@ -258,38 +235,112 @@ class ApiController
      */
 
     /**
-     * Move a file.
+     * Get the destinations paths.
      *
+     * @param  string  $name
+     * @param  string  $location
+     *
+     * @return \Arcanesoft\Media\Entities\DirectoryCollection
+     */
+    private function getDestinations($name, $location)
+    {
+        $selected     = ($isHome = $location === '/') ? $name : "{$location}/{$name}";
+        $destinations = $this->media->directories($location)
+            ->pluck('path')
+            ->reject(function ($path) use ($selected) {
+                return $path === $selected;
+            })
+            ->values();
+
+        if ( ! $isHome)
+            $destinations->prepend('..');
+
+        return $destinations;
+    }
+
+    /**
+     * Perform the media movement.
+     *
+     * @param  string  $type
+     * @param  string  $location
+     * @param  string  $oldName
+     * @param  string  $newName
+     *
+     * @return bool|string
+     */
+    private function performMoveMedia($type, $location, $oldName, $newName)
+    {
+        $from = "{$location}/{$oldName}";
+
+        switch (Str::lower($type)) {
+            case Media::MEDIA_TYPE_FILE:
+                return $this->moveFile($from, $location, $newName);
+
+            case Media::MEDIA_TYPE_DIRECTORY:
+                return $this->moveDirectory($from, $location, $newName);
+
+            default:
+                return false;
+        }
+    }
+
+    /**
+     * Move file.
+     *
+     * @param  string  $location
      * @param  string  $location
      * @param  string  $from
      * @param  string  $newName
      *
      * @return string
      */
-    private function moveFile($location, $from, $newName)
+    private function moveFile($from, $location, $newName)
     {
-        $filename = Str::slug(pathinfo($newName, PATHINFO_FILENAME)).'.'.pathinfo($newName, PATHINFO_EXTENSION);
+        $filename  = Str::slug(pathinfo($newName, PATHINFO_FILENAME));
+        $extension = pathinfo($newName, PATHINFO_EXTENSION);
 
-        $this->media->move($from, $to = $location.'/'.$filename);
+        $this->media->move($from, $to = "{$location}/{$filename}.{$extension}");
 
         return $to;
     }
 
     /**
-     * Move a directory.
+     * Move directory.
      *
-     * @param  string  $location
      * @param  string  $from
+     * @param  string  $location
      * @param  string  $newName
      *
      * @return string
      */
-    private function moveDirectory($location, $from, $newName)
+    private function moveDirectory($from, $location, $newName)
     {
-        $to = $location.'/'.Str::slug($newName);
+        $newName = Str::slug($newName);
 
-        $this->media->move($from, $to);
+        return tap("{$location}/{$newName}", function ($to) use ($from) {
+            $this->media->move($from, $to);
+        });
+    }
 
-        return $to;
+    /**
+     * Perform the media deletion.
+     *
+     * @param  string  $type
+     * @param  string  $path
+     *
+     * @return bool
+     */
+    private function performDeleteMedia($type, $path)
+    {
+        switch (Str::lower($type)) {
+            case Media::MEDIA_TYPE_FILE:
+                return $this->media->deleteFile($path);
+
+            case Media::MEDIA_TYPE_DIRECTORY:
+                return $this->media->deleteDirectory(trim($path, '/'));
+
+            default:
+                return false;
+        }
     }
 }
