@@ -14,6 +14,7 @@ interface Media
      |  Constants
      | -----------------------------------------------------------------
      */
+
     const MEDIA_TYPE_DIRECTORY = 'directory';
     const MEDIA_TYPE_FILE      = 'file';
 
@@ -21,6 +22,7 @@ interface Media
      |  Getters & Setters
      | -----------------------------------------------------------------
      */
+
     /**
      * Get the default disk name.
      *
@@ -46,6 +48,7 @@ interface Media
      |  Main Methods
      | -----------------------------------------------------------------
      */
+
     /**
      * Get a filesystem adapter.
      *
@@ -153,6 +156,7 @@ interface Media
      |  Check Methods
      | -----------------------------------------------------------------
      */
+
     /**
      * Determine if a file/directory exists.
      *

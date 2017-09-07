@@ -19,7 +19,7 @@ class ApiRoutes extends RouteRegistrar
      */
     public function map()
     {
-        $this->name('api.')->group(function () {
+        $this->prefix('api')->name('api.')->middleware('ajax')->group(function () {
             $this->get('all', 'ApiController@getAll')
                  ->name('get');    // admin::media.api.get
 

@@ -1,6 +1,5 @@
 <?php namespace Arcanesoft\Media\Http\Controllers\Admin;
 
-use Arcanedev\LaravelApiHelper\Traits\JsonResponses;
 use Arcanesoft\Media\Policies\MediasPolicy;
 
 /**
@@ -11,13 +10,6 @@ use Arcanesoft\Media\Policies\MediasPolicy;
  */
 class MediasController extends Controller
 {
-    /* -----------------------------------------------------------------
-     |  Traits
-     | -----------------------------------------------------------------
-     */
-
-    use JsonResponses;
-
     /* -----------------------------------------------------------------
      |  Constructor
      | -----------------------------------------------------------------
@@ -31,6 +23,7 @@ class MediasController extends Controller
         parent::__construct();
 
         $this->setCurrentPage('media');
+        $this->addBreadcrumbRoute('Media', 'admin::media.index');
     }
 
     /* -----------------------------------------------------------------
