@@ -83,18 +83,15 @@ class MediaApiTest extends TestCase
              ]);
     }
 
-    /**
-     * @test
-     *
-     * @expectedException         \Illuminate\Auth\Access\AuthorizationException
-     * @expectedExceptionMessage  [Unauthorized] You are not allowed to perform this action.
-     * @expectedExceptionCode     403
-     */
+    /** @test */
     public function it_must_block_access_on_get_all()
     {
         $this->beUser();
 
-        $this->getJson(route('admin::media.api.get'))->json();
+        $response = $this->getJson(route('admin::media.api.get'));
+
+        $response->assertStatus(403);
+        $response->assertJsonFragment(['message' => '[Unauthorized] You are not allowed to perform this action.']);
     }
 
     /** @test */
