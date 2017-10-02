@@ -21,11 +21,11 @@
         "arcanesoft/core": "~2.7.0"
     },
     "require-dev": {
-        "arcanesoft/foundation":           "~2.4.0",
-        "phpunit/phpcov":                  "~4.0",
-        "phpunit/phpunit":                 "~6.0",
-        "mockery/mockery":                 "~0.9.0",
-        "orchestra/testbench-browser-kit": "~3.5.0"
+        "arcanesoft/foundation": "~2.4.0",
+        "phpunit/phpcov":        "~4.0",
+        "phpunit/phpunit":       "~6.0",
+        "mockery/mockery":       "~0.9.0",
+        "orchestra/testbench":   "~3.5.0"
     },
     "autoload": {
         "psr-4": {
