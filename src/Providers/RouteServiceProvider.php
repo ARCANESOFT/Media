@@ -1,7 +1,11 @@
-<?php namespace Arcanesoft\Media\Providers;
+<?php
 
-use Arcanesoft\Core\Bases\RouteServiceProvider as ServiceProvider;
+declare(strict_types=1);
+
+namespace Arcanesoft\Media\Providers;
+
 use Arcanesoft\Media\Http\Routes;
+use Arcanesoft\Foundation\Support\Providers\RouteServiceProvider as ServiceProvider;
 
 /**
  * Class     RouteServiceProvider
@@ -12,42 +16,19 @@ use Arcanesoft\Media\Http\Routes;
 class RouteServiceProvider extends ServiceProvider
 {
     /* -----------------------------------------------------------------
-     |  Properties
-     | -----------------------------------------------------------------
-     */
-
-    /**
-     * The admin controller namespace for the application.
-     *
-     * @var string
-     */
-    protected $adminNamespace = 'Arcanesoft\\Media\\Http\\Controllers\\Admin';
-
-    /* -----------------------------------------------------------------
      |  Main Methods
      | -----------------------------------------------------------------
      */
 
     /**
-     * Define the routes for the application.
+     * Get the registered routes.
+     *
+     * @return array
      */
-    public function map()
+    public function routeClasses(): array
     {
-        $this->adminGroup(function () {
-            $this->mapAdminRoutes();
-        });
-    }
-
-    /**
-     * Register the admin routes.
-     */
-    protected function mapAdminRoutes()
-    {
-        $this->prefix($this->config()->get('arcanesoft.media.route.prefix', 'media'))
-             ->name('media.')
-             ->group(function () {
-                 Routes\Admin\MediaRoutes::register();
-                 Routes\Admin\ApiRoutes::register();
-             });
+        return [
+            Routes\MediaRoutes::class,
+        ];
     }
 }

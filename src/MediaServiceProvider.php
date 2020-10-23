@@ -1,6 +1,10 @@
-<?php namespace Arcanesoft\Media;
+<?php
 
-use Arcanesoft\Core\Bases\PackageServiceProvider;
+declare(strict_types=1);
+
+namespace Arcanesoft\Media;
+
+use Arcanesoft\Foundation\Support\Providers\PackageServiceProvider;
 
 /**
  * Class     MediaServiceProvider
@@ -16,93 +20,60 @@ class MediaServiceProvider extends PackageServiceProvider
      */
 
     /**
-     * Package name.
+     * The package name.
      *
-     * @var string
+     * @var  string
      */
     protected $package = 'media';
 
+    /**
+     * Merge multiple config files into one instance (package name as root key).
+     *
+     * @var bool
+     */
+    protected $multiConfigs = true;
+
     /* -----------------------------------------------------------------
-     |  Main Functions
+     |  Main Methods
      | -----------------------------------------------------------------
      */
 
     /**
-     * Register the service provider.
+     * Register any application services.
      */
-    public function register()
+    public function register(): void
     {
-        parent::register();
-
         $this->registerConfig();
-        $this->registerSidebarItems();
+
         $this->registerProviders([
-            Providers\AuthorizationServiceProvider::class,
+            Providers\AuthServiceProvider::class,
             Providers\RouteServiceProvider::class,
         ]);
-        $this->registerConsoleServiceProvider(Providers\ConsoleServiceProvider::class);
 
-        $this->syncFilesystemConfig();
-        $this->registerMediaManager();
+        $this->app->booting(function ($app) {
+            /** @var  \Illuminate\Contracts\Config\Repository  $config */
+            $config = $app['config'];
+
+            $config->set('filesystems.disks', array_merge(
+                $config->get('arcanesoft.media.filesystems.disks', []),
+                $config->get('filesystems.disks', [])
+            ));
+        });
     }
 
     /**
      * Boot the service provider.
      */
-    public function boot()
+    public function boot(): void
     {
-        parent::boot();
+        $this->loadTranslations();
+        $this->loadViews();
 
-        // Publishes
-        $this->publishConfig();
-        $this->publishViews();
-        $this->publishTranslations();
-        $this->publishSidebarItems();
-        $this->publishAssets();
-    }
-
-    /**
-     * Get the services provided by the provider.
-     *
-     * @return array
-     */
-    public function provides()
-    {
-        return [
-            Contracts\Media::class,
-        ];
-    }
-
-    /* -----------------------------------------------------------------
-     |  Other Methods
-     | -----------------------------------------------------------------
-     */
-
-    /**
-     * Sync the filesystem config.
-     */
-    private function syncFilesystemConfig()
-    {
-        foreach ($this->config()->get('arcanesoft.media.filesystem.disks', []) as $disk => $config) {
-            $this->config()->set("filesystems.disks.$disk", $config);
+        if ($this->app->runningInConsole()) {
+            $this->publishAssets();
+            $this->publishConfig();
+            $this->publishTranslations();
+            $this->publishViews();
         }
-    }
-
-    /**
-     * Register the media manager.
-     */
-    private function registerMediaManager()
-    {
-        $this->singleton(Contracts\Media::class, Media::class);
-    }
-
-    /**
-     * Publish the assets.
-     */
-    protected function publishAssets()
-    {
-        $this->publishes([
-            $this->getResourcesPath().DS.'assets'.DS => resource_path("assets/_{$this->vendor}/{$this->package}"),
-        ], 'assets');
     }
 }

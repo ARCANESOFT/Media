@@ -6,4 +6,4 @@
  * @package  Arcanesoft\Media\Exceptions
  * @author   ARCANEDEV <arcanedev.maroc@gmail.com>
  */
-class FileNotFoundException extends MediaException {}
+class FileNotFoundException extends \Exception {}

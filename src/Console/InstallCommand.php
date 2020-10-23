@@ -1,7 +1,11 @@
-<?php namespace Arcanesoft\Media\Console;
+<?php
 
-use Arcanedev\Support\Bases\Command;
-use Arcanesoft\Media\Seeds\DatabaseSeeder;
+declare(strict_types=1);
+
+namespace Arcanesoft\Media\Console;
+
+use Arcanesoft\Media\Database\DatabaseSeeder;
+use Arcanesoft\Foundation\Support\Console\InstallCommand as Command;
 
 /**
  * Class     InstallCommand
@@ -12,34 +16,15 @@ use Arcanesoft\Media\Seeds\DatabaseSeeder;
 class InstallCommand extends Command
 {
     /* -----------------------------------------------------------------
-     |  Properties
-     | -----------------------------------------------------------------
-     */
-
-    /**
-     * The name and signature of the console command.
-     *
-     * @var string
-     */
-    protected $signature = 'media:install';
-
-    /**
-     * The console command description.
-     *
-     * @var string
-     */
-    protected $description = 'Install the media module.';
-
-    /* -----------------------------------------------------------------
      |  Main Methods
      | -----------------------------------------------------------------
      */
 
     /**
-     * Execute the console command.
+     * Handle the command.
      */
-    public function handle()
+    public function handle(): void
     {
-        $this->call('db:seed', ['--class' => DatabaseSeeder::class]);
+        $this->seed(DatabaseSeeder::class);
     }
 }
