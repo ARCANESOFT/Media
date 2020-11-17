@@ -1,4 +1,4 @@
-import Translator from '@arcanesoft/core/src/helpers/translator'
+import Translator from '@arcanescripts/translator'
 import translations from '../translations'
 
 const translator = new Translator({
