@@ -1,4 +1,8 @@
-<?php namespace Arcanesoft\Media\Http\Controllers;
+<?php
+
+declare(strict_types=1);
+
+namespace Arcanesoft\Media\Http\Controllers;
 
 use Arcanesoft\Media\Entities\MediaItem;
 use Arcanesoft\Media\Http\Requests\NewFolderRequest;
@@ -9,7 +13,6 @@ use Illuminate\Http\Request;
 /**
  * Class     MediaApiController
  *
- * @package  Arcanesoft\Media\Http\Controllers
  * @author   ARCANEDEV <arcanedev.maroc@gmail.com>
  */
 class MediaApiController extends Controller
@@ -110,7 +113,8 @@ class MediaApiController extends Controller
 
         $parts = explode('/', $from);
         $file  = array_pop($parts);
-        $to    = implode('/', array_merge($parts, [$destination], [$file]));
+
+        $to = implode('/', array_merge($parts, [$destination], [$file]));
 
         $this->manager->move($from, $to);
 
@@ -127,7 +131,6 @@ class MediaApiController extends Controller
     public function rename(RenameMediaRequest $request)
     {
         // TODO: Add authorization check
-
         $this->manager->rename(
             $request->get('old_path'),
             $request->get('new_path')
