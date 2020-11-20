@@ -5,9 +5,7 @@ declare(strict_types=1);
 namespace Arcanesoft\Media\Http\Controllers;
 
 use Arcanesoft\Media\Entities\MediaItem;
-use Arcanesoft\Media\Http\Requests\NewFolderRequest;
-use Arcanesoft\Media\Http\Requests\RenameMediaRequest;
-use Arcanesoft\Media\Http\Requests\UploadMediaRequest;
+use Arcanesoft\Media\Http\Requests\{NewFolderRequest, RenameMediaRequest, UploadMediaRequest};
 use Illuminate\Http\Request;
 
 /**

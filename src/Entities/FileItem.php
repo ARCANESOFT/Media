@@ -1,9 +1,12 @@
-<?php namespace Arcanesoft\Media\Entities;
+<?php
+
+declare(strict_types=1);
+
+namespace Arcanesoft\Media\Entities;
 
 /**
  * Class     FileItem
  *
- * @package  Arcanesoft\Media\Entities
  * @author   ARCANEDEV <arcanedev.maroc@gmail.com>
  */
 class FileItem extends MediaItem
@@ -14,9 +17,13 @@ class FileItem extends MediaItem
      */
 
     public $url;
+
     public $mimetype;
+
     public $lastModified;
+
     public $visibility;
+
     public $size;
 
     /* -----------------------------------------------------------------
@@ -24,7 +31,13 @@ class FileItem extends MediaItem
      | -----------------------------------------------------------------
      */
 
-    protected function load(array $data, string $path)
+    /**
+     * Load the media item.
+     *
+     * @param  array   $data
+     * @param  string  $path
+     */
+    protected function load(array $data, string $path): void
     {
         $this->url          = $data['url'];
         $this->mimetype     = $data['mimetype'];
@@ -39,9 +52,9 @@ class FileItem extends MediaItem
      */
 
     /**
-     * Get the item type.
+     * Get the media item's type.
      *
-     * @return mixed
+     * @return string
      */
     public function type(): string
     {
@@ -49,6 +62,8 @@ class FileItem extends MediaItem
     }
 
     /**
+     * Get the instance as an array.
+     *
      * @return array
      */
     public function toArray(): array

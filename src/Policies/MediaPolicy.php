@@ -10,8 +10,9 @@ use Arcanesoft\Foundation\Support\Auth\Policy;
 /**
  * Class     MediaPolicy
  *
- * @package  Arcanesoft\Media\Policies
  * @author   ARCANEDEV <arcanedev.maroc@gmail.com>
+ *
+ * @todo Add more abilities
  */
 class MediaPolicy extends Policy
 {

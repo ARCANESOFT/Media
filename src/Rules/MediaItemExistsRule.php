@@ -1,4 +1,8 @@
-<?php namespace Arcanesoft\Media\Rules;
+<?php
+
+declare(strict_types=1);
+
+namespace Arcanesoft\Media\Rules;
 
 use Arcanesoft\Media\MediaManager;
 use Illuminate\Contracts\Validation\Rule;
@@ -6,7 +10,6 @@ use Illuminate\Contracts\Validation\Rule;
 /**
  * Class     MediaItemExistsRule
  *
- * @package  Arcanesoft\Media\Rules
  * @author   ARCANEDEV <arcanedev.maroc@gmail.com>
  */
 class MediaItemExistsRule implements Rule

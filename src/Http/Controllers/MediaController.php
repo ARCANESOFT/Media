@@ -1,9 +1,14 @@
-<?php namespace Arcanesoft\Media\Http\Controllers;
+<?php
+
+declare(strict_types=1);
+
+namespace Arcanesoft\Media\Http\Controllers;
+
+use Arcanesoft\Media\Policies\MediaPolicy;
 
 /**
  * Class     MediaController
  *
- * @package  Arcanesoft\Media\Http\Controllers
  * @author   ARCANEDEV <arcanedev.maroc@gmail.com>
  */
 class MediaController extends Controller
@@ -15,7 +20,8 @@ class MediaController extends Controller
 
     public function index()
     {
-        // TODO: Add authorization check
+        $this->authorize(MediaPolicy::ability('index'));
+
         $this->setCurrentSidebarItem('foundation::media');
 
         return $this->view('index');

@@ -10,7 +10,6 @@ use Arcanesoft\Foundation\Support\Providers\RouteServiceProvider as ServiceProvi
 /**
  * Class     RouteServiceProvider
  *
- * @package  Arcanesoft\Media\Providers
  * @author   ARCANEDEV <arcanedev.maroc@gmail.com>
  */
 class RouteServiceProvider extends ServiceProvider

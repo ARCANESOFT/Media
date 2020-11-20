@@ -9,7 +9,6 @@ use Arcanesoft\Foundation\Support\Providers\PackageServiceProvider;
 /**
  * Class     MediaServiceProvider
  *
- * @package  Arcanesoft\Media
  * @author   ARCANEDEV <arcanedev.maroc@gmail.com>
  */
 class MediaServiceProvider extends PackageServiceProvider

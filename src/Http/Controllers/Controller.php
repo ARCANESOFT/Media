@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Arcanesoft\Media\Http\Controllers;
 
 use Arcanesoft\Foundation\Support\Http\Controller as BaseController;
@@ -8,7 +10,6 @@ use Arcanesoft\Media\MediaManager;
 /**
  * Class     Controller
  *
- * @package  Arcanesoft\Media\Http\Controllers
  * @author   ARCANEDEV <arcanedev.maroc@gmail.com>
  */
 abstract class Controller extends BaseController

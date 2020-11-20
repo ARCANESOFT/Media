@@ -1,4 +1,8 @@
-<?php namespace Arcanesoft\Media;
+<?php
+
+declare(strict_types=1);
+
+namespace Arcanesoft\Media;
 
 use Arcanesoft\Media\Entities\DirectoryItem;
 use Arcanesoft\Media\Entities\FileItem;
@@ -8,8 +12,12 @@ use Arcanesoft\Media\Exceptions\FileNotFoundException;
 use Carbon\Carbon;
 use Illuminate\Contracts\Filesystem\Factory;
 use Illuminate\Contracts\Filesystem\Filesystem;
-use phpDocumentor\Reflection\File;
 
+/**
+ * Class     MediaManager
+ *
+ * @author   ARCANEDEV <arcanedev.maroc@gmail.com>
+ */
 class MediaManager
 {
     /* -----------------------------------------------------------------

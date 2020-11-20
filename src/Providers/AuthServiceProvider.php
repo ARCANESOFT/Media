@@ -9,7 +9,6 @@ use Arcanesoft\Foundation\Support\Providers\AuthServiceProvider as ServiceProvid
 /**
  * Class     AuthServiceProvider
  *
- * @package  Arcanesoft\Media\Providers
  * @author   ARCANEDEV <arcanedev.maroc@gmail.com>
  */
 class AuthServiceProvider extends ServiceProvider

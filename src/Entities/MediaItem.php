@@ -1,13 +1,15 @@
-<?php namespace Arcanesoft\Media\Entities;
+<?php
 
-use Illuminate\Contracts\Support\Arrayable;
-use Illuminate\Contracts\Support\Jsonable;
+declare(strict_types=1);
+
+namespace Arcanesoft\Media\Entities;
+
+use Illuminate\Contracts\Support\{Arrayable, Jsonable};
 use JsonSerializable;
 
 /**
  * Class     MediaItem
  *
- * @package  Arcanesoft\Media\Entities
  * @author   ARCANEDEV <arcanedev.maroc@gmail.com>
  */
 abstract class MediaItem implements Arrayable, Jsonable, JsonSerializable
@@ -48,7 +50,13 @@ abstract class MediaItem implements Arrayable, Jsonable, JsonSerializable
         $this->load($data, $path);
     }
 
-    abstract protected function load(array $data, string $path);
+    /**
+     * Load the media item.
+     *
+     * @param  array   $data
+     * @param  string  $path
+     */
+    abstract protected function load(array $data, string $path): void;
 
     /* -----------------------------------------------------------------
      |  Getters
@@ -58,7 +66,7 @@ abstract class MediaItem implements Arrayable, Jsonable, JsonSerializable
     /**
      * Get the item type.
      *
-     * @return mixed
+     * @return string
      */
     abstract public function type(): string;
 

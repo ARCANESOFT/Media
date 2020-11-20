@@ -9,7 +9,6 @@ use Arcanesoft\Foundation\Core\Database\RolesSeeder as Seeder;
 /**
  * Class     RoleSeeder
  *
- * @package  Arcanesoft\Media\Database\Seeders
  * @author   ARCANEDEV <arcanedev.maroc@gmail.com>
  */
 class RoleSeeder extends Seeder
@@ -24,6 +23,20 @@ class RoleSeeder extends Seeder
      */
     public function run(): void
     {
-        //
+        $this->seedMany([
+            [
+                'name'        => 'Media Moderator',
+                'key'         => 'media-moderator',
+                'description' => 'The media moderator role',
+                'is_locked'   => true,
+            ],
+        ]);
+
+        $this->syncRolesWithPermissions([
+            'media-moderator' => [
+                'admin::dashboard.index',
+                'admin::media.*',
+            ],
+        ]);
     }
 }

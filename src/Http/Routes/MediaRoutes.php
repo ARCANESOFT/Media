@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Arcanesoft\Media\Http\Routes;
 
 use Arcanesoft\Foundation\Support\Http\AdminRouteRegistrar;
@@ -8,7 +10,6 @@ use Arcanesoft\Media\Http\Controllers\{MediaApiController, MediaController};
 /**
  * Class     MediaRoutes
  *
- * @package  Arcanesoft\Media\Http\Routes
  * @author   ARCANEDEV <arcanedev.maroc@gmail.com>
  */
 class MediaRoutes extends AdminRouteRegistrar
@@ -25,8 +26,9 @@ class MediaRoutes extends AdminRouteRegistrar
     {
         $this->adminGroup(function () {
             $this->prefix('media')->name('media.')->group(function () {
+                // admin::media.index
                 $this->get('/', [MediaController::class, 'index'])
-                     ->name('index'); // admin::media.index
+                     ->name('index');
 
                 $this->mapApiRoutes();
             });
@@ -39,29 +41,37 @@ class MediaRoutes extends AdminRouteRegistrar
     private function mapApiRoutes(): void
     {
         $this->prefix('api')->name('api.')->middleware(['ajax'])->group(function () {
+            // admin::media.api.items.index
             $this->get('items', [MediaApiController::class, 'all'])
-                 ->name('items.index'); // admin::media.api.items.index
+                 ->name('items.index');
 
+            // admin::media.api.directories.index
             $this->get('directories', [MediaApiController::class, 'directories'])
-                 ->name('directories.index'); // admin::media.api.directories.index
+                 ->name('directories.index');
 
+            // admin::media.api.upload
             $this->post('upload', [MediaApiController::class, 'upload'])
-                 ->name('upload'); // admin::media.api.upload
+                 ->name('upload');
 
+            // admin::media.api.new-folder
             $this->post('new-folder', [MediaApiController::class, 'newFolder'])
-                 ->name('new-folder'); // admin::media.api.new-folder
+                 ->name('new-folder');
 
+            // admin::media.api.move
             $this->put('move', [MediaApiController::class, 'move'])
-                 ->name('move'); // admin::media.api.move
+                 ->name('move');
 
+            // admin::media.api.rename
             $this->put('rename', [MediaApiController::class, 'rename'])
-                 ->name('rename'); // admin::media.api.rename
+                 ->name('rename');
 
+            // admin::media.api.delete
             $this->delete('delete', [MediaApiController::class, 'delete'])
-                 ->name('delete'); // admin::media.api.delete
+                 ->name('delete');
 
+            // admin::media.api.delete
             $this->get('download', [MediaApiController::class, 'download'])
-                 ->name('download'); // admin::media.api.delete
+                 ->name('download');
         });
     }
 }

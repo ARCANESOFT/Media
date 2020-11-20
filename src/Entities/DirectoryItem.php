@@ -1,9 +1,12 @@
-<?php namespace Arcanesoft\Media\Entities;
+<?php
+
+declare(strict_types=1);
+
+namespace Arcanesoft\Media\Entities;
 
 /**
  * Class     DirectoryItem
  *
- * @package  Arcanesoft\Media\Entities
  * @author   ARCANEDEV <arcanedev.maroc@gmail.com>
  */
 class DirectoryItem extends MediaItem
@@ -13,12 +16,23 @@ class DirectoryItem extends MediaItem
      | -----------------------------------------------------------------
      */
 
+    /**
+     * Get the media item's type.
+     *
+     * @return string
+     */
     public function type(): string
     {
         return static::TYPE_DIRECTORY;
     }
 
-    protected function load(array $data, string $path)
+    /**
+     * Load the media item.
+     *
+     * @param  array   $data
+     * @param  string  $path
+     */
+    protected function load(array $data, string $path): void
     {
         // TODO: Implement load() method.
     }

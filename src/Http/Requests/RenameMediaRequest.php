@@ -5,7 +5,6 @@ declare(strict_types=1);
 namespace Arcanesoft\Media\Http\Requests;
 
 use Arcanesoft\Media\Rules\{MediaItemExistsRule, MediaItemUniqueRule};
-use Illuminate\Support\Str;
 
 /**
  * Class     RenameMediaRequest

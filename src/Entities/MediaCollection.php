@@ -1,11 +1,14 @@
-<?php namespace Arcanesoft\Media\Entities;
+<?php
+
+declare(strict_types=1);
+
+namespace Arcanesoft\Media\Entities;
 
 use Illuminate\Support\Collection;
 
 /**
  * Class     MediaCollection
  *
- * @package  Arcanesoft\Media\Entities
  * @author   ARCANEDEV <arcanedev.maroc@gmail.com>
  */
 class MediaCollection
@@ -22,7 +25,7 @@ class MediaCollection
      *
      * @return \Illuminate\Support\Collection
      */
-    public static function directories(array $directories)
+    public static function directories(array $directories): Collection
     {
         return Collection::make($directories)->mapInto(DirectoryItem::class);
     }
@@ -34,7 +37,7 @@ class MediaCollection
      *
      * @return \Illuminate\Support\Collection
      */
-    public static function files(array $files)
+    public static function files(array $files): Collection
     {
         return Collection::make($files)->mapInto(FileItem::class);
     }
@@ -47,7 +50,7 @@ class MediaCollection
      *
      * @return \Illuminate\Support\Collection
      */
-    public static function all(array $directories, array $files)
+    public static function all(array $directories, array $files): Collection
     {
         return Collection::make([
             static::directories($directories),

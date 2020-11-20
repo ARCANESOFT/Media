@@ -10,7 +10,6 @@ use Arcanesoft\Foundation\Support\Console\InstallCommand as Command;
 /**
  * Class     InstallCommand
  *
- * @package  Arcanesoft\Media\Console
  * @author   ARCANEDEV <arcanedev.maroc@gmail.com>
  */
 class InstallCommand extends Command

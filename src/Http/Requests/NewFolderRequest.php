@@ -4,9 +4,7 @@ declare(strict_types=1);
 
 namespace Arcanesoft\Media\Http\Requests;
 
-use Arcanesoft\Media\Rules\MediaItemExistsRule;
 use Arcanesoft\Media\Rules\MediaItemUniqueRule;
-use Illuminate\Support\Str;
 
 /**
  * Class     NewFolderRequest
