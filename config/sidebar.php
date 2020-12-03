@@ -8,8 +8,12 @@ return [
             'title'       => 'Media',
             'icon'        => 'far fa-fw fa-images',
             'route'       => 'admin::media.index',
-            'roles'       => [],
-            'permissions' => [],
+            'roles'       => [
+                'media-moderator',
+            ],
+            'permissions' => [
+                'admin::media.index',
+            ],
         ],
     ],
 ];
