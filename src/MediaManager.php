@@ -185,7 +185,8 @@ class MediaManager
      */
     public function putFile(string $path, $file, array $options = [])
     {
-        return $this->disk()->putFile($path, $file, $options);
+        // TODO: Revert to a hashname option ?
+        return $this->disk()->putFileAs($path, $file, $file->getClientOriginalName(), $options);
     }
 
     /**
