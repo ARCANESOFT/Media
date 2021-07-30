@@ -1,9 +1,12 @@
-<?php namespace Arcanesoft\Media\Exceptions;
+<?php
+
+declare(strict_types=1);
+
+namespace Arcanesoft\Media\Exceptions;
 
 /**
  * Class     MediaException
  *
- * @package  Arcanesoft\Media\Exceptions
  * @author   ARCANEDEV <arcanedev.maroc@gmail.com>
  */
 class MediaException extends \Exception {}

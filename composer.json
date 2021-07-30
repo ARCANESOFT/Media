@@ -1,11 +1,10 @@
 {
     "name":        "arcanesoft/media",
-    "description": "Media package for ARCANESOFT/Foundation.",
-    "homepage":    "https://github.com/ARCANESOFT/Media",
-    "keywords":    [
-        "arcanesoft", "arcanedev", "media", "images", "files", "manager"
-    ],
-    "authors":  [
+    "description": "Media module for ARCANESOFT.",
+    "keywords":    ["arcanedev", "arcanesoft", "media", "media-manager", "media-viewer", "images", "files", "framework", "laravel"],
+    "license":     "MIT",
+    "type":        "project",
+    "authors":     [
         {
             "name":     "ARCANEDEV",
             "email":    "arcanedev.maroc@gmail.com",
@@ -13,19 +12,15 @@
             "role":     "Developer"
         }
     ],
-    "type":    "library",
-    "license": "MIT",
     "require": {
-        "php":             ">=7.0",
-        "arcanesoft/auth": "~3.1.0",
-        "arcanesoft/core": "~2.7.0"
+        "php": "^7.3|^8.0",
+        "arcanesoft/foundation": "^4.0"
     },
     "require-dev": {
-        "arcanesoft/foundation": "~2.4.0",
-        "phpunit/phpcov":        "~4.0",
-        "phpunit/phpunit":       "~6.0",
-        "mockery/mockery":       "~0.9.0",
-        "orchestra/testbench":   "~3.5.0"
+        "laravel/framework": "^8.0",
+        "mockery/mockery": "^1.4.2",
+        "orchestra/testbench-core": "^6.0",
+        "phpunit/phpunit": "^9.3"
     },
     "autoload": {
         "psr-4": {
@@ -36,5 +31,29 @@
         "psr-4": {
             "Arcanesoft\\Media\\Tests\\": "tests/"
         }
-    }
+    },
+    "scripts": {
+        "test": "phpunit --colors=always",
+        "test:dox": "phpunit --testdox --colors=always",
+        "test:cov": "phpunit --coverage-html coverage"
+    },
+    "extra": {
+        "branch-alias": {
+            "dev-develop": "4.x-dev"
+        },
+        "laravel": {
+            "providers": [
+                "Arcanesoft\\Media\\MediaServiceProvider"
+            ]
+        },
+        "arcanesoft": {
+            "install": "Arcanesoft\\Media\\Console\\InstallCommand",
+            "publish": "Arcanesoft\\Media\\Console\\PublishCommand"
+        }
+    },
+    "config": {
+        "sort-packages": true
+    },
+    "minimum-stability": "dev",
+    "prefer-stable": true
 }

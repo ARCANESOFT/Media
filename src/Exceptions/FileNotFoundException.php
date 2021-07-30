@@ -1,9 +1,12 @@
-<?php namespace Arcanesoft\Media\Exceptions;
+<?php
+
+declare(strict_types=1);
+
+namespace Arcanesoft\Media\Exceptions;
 
 /**
  * Class     FileNotFoundException
  *
- * @package  Arcanesoft\Media\Exceptions
  * @author   ARCANEDEV <arcanedev.maroc@gmail.com>
  */
 class FileNotFoundException extends MediaException {}
